@@ -5,7 +5,6 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Optional;
 
-import javax.management.RuntimeErrorException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,25 +18,26 @@ import com.example.parking_rmi.model.ParkingSpot;
 import com.example.parking_rmi.model.Reservation;
 import com.example.parking_rmi.model.ParkingSpot.SpotStatus;
 
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
 public class ParkingServiceImp extends UnicastRemoteObject implements ParkingService {
 
-    @Autowired
-    public ParkingLotRepository parkingLotRepository;
+    public final ParkingLotRepository parkingLotRepository;
 
-    @Autowired
-    public ParkingSpotRepository parkingSpotRepository;
+    public final ParkingSpotRepository parkingSpotRepository;
 
-    @Autowired
-    public ReservationRepository reservationRepository;
+    public final ReservationRepository reservationRepository;
 
-    protected ParkingServiceImp() throws RemoteException {
+    public ParkingServiceImp(ParkingLotRepository parkingLotRepository,
+                             ParkingSpotRepository parkingSpotRepository,
+                             ReservationRepository reservationRepository
+                             ) throws RemoteException {
         super();
-        //TODO Auto-generated constructor stub
+        this.parkingLotRepository=parkingLotRepository;
+        this.parkingSpotRepository=parkingSpotRepository;
+        this.reservationRepository=reservationRepository;
     }
 
     @Override

@@ -13,25 +13,19 @@ import java.time.LocalDateTime;
  * @author Omar - Backend Core Developer
  */
 @Entity
-@Table(
-    name = "parking_spots",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "uk_spot_number",
-            columnNames = {"parking_lot_id", "spot_number"}
-        )
-    },
-    indexes = {
+@Table(name = "parking_spots", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_spot_number", columnNames = { "parking_lot_id", "spot_number" })
+}, indexes = {
         @Index(name = "idx_spot_status", columnList = "status"),
         @Index(name = "idx_spot_parking_lot", columnList = "parking_lot_id"),
         @Index(name = "idx_spot_type", columnList = "spot_type")
-    }
-)
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ParkingSpot implements Serializable{
+public class ParkingSpot implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -91,11 +85,7 @@ public class ParkingSpot implements Serializable{
      * Une place appartient à un parking
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-        name = "parking_lot_id",
-        nullable = false,
-        foreignKey = @ForeignKey(name = "fk_spot_parking_lot")
-    )
+    @JoinColumn(name = "parking_lot_id", nullable = false, foreignKey = @ForeignKey(name = "fk_spot_parking_lot"))
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private ParkingLot parkingLot;
@@ -104,11 +94,7 @@ public class ParkingSpot implements Serializable{
      * Relation OneToOne avec Reservation
      * Une place peut avoir une réservation active
      */
-    @OneToOne(
-        mappedBy = "parkingSpot",
-        fetch = FetchType.LAZY,
-        cascade = CascadeType.ALL
-    )
+    @OneToOne(mappedBy = "parkingSpot", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Reservation currentReservation;

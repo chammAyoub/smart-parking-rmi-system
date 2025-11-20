@@ -1,5 +1,6 @@
 package com.example.parking_rmi.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -9,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ParkingSpot {
+public class ParkingSpot implements Serializable {
     
     private static final long serialVersionUID = 1L;
 

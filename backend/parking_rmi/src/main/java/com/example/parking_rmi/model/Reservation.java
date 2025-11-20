@@ -1,5 +1,6 @@
 package com.example.parking_rmi.model;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Reservation {
+public class Reservation implements Serializable {
      private static final long serialVersionUID = 1L;
 
     private Long id;

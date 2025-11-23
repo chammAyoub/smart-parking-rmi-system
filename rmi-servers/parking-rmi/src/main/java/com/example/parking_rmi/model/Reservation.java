@@ -9,6 +9,8 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(
     name = "reservations",
@@ -121,6 +123,7 @@ public class Reservation implements Serializable {
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnoreProperties({"reservations", "spots"})
     private ParkingLot parkingLot;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -131,6 +134,7 @@ public class Reservation implements Serializable {
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnoreProperties("currentReservation")
     private ParkingSpot parkingSpot;
 
     // LIFECYCLE CALLBACKS

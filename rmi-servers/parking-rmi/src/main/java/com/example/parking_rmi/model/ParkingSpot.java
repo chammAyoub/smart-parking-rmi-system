@@ -7,6 +7,8 @@ import lombok.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Entity représentant une place de parking individuelle
  * 
@@ -88,6 +90,7 @@ public class ParkingSpot implements Serializable {
     @JoinColumn(name = "parking_lot_id", nullable = false, foreignKey = @ForeignKey(name = "fk_spot_parking_lot"))
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private ParkingLot parkingLot;
 
     /**
@@ -97,6 +100,7 @@ public class ParkingSpot implements Serializable {
     @OneToOne(mappedBy = "parkingSpot", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private Reservation currentReservation;
 
     // ============================================

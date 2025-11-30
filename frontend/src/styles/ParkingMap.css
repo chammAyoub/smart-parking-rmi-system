@@ -1,0 +1,90 @@
+/* importing leaflet CSS */
+@import 'leaflet/dist/leaflet.css';
+
+
+.leaflet-container {
+  height: 500px;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+
+.custom-marker {
+  background: white;
+  border: 3px solid #667eea;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  color: #667eea;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.custom-marker.green {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.custom-marker.yellow {
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.custom-marker.red {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0.75rem;
+  padding: 0;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 1rem;
+  min-width: 200px;
+}
+
+.custom-popup h3 {
+  font-size: 1.125rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.custom-popup p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+}
+
+.custom-popup button {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.custom-popup button:hover {
+  transform: scale(1.05);
+}
+
+/* responsive */
+@media (max-width: 768px) {
+  .leaflet-container {
+    height: 400px;
+  }
+}

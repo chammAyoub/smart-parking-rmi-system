@@ -107,16 +107,7 @@ public class ParkingSpot implements Serializable {
     // LIFECYCLE CALLBACKS
     // ============================================
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    
 
     // ============================================
     // BUSINESS METHODS

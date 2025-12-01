@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "parking_lots")
 @Getter
@@ -115,6 +117,7 @@ public class ParkingLot implements Serializable {
     @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private List<ParkingSpot> spots = new ArrayList<>();
 
     @OneToMany(
@@ -125,26 +128,16 @@ public class ParkingLot implements Serializable {
     @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
+    @JsonIgnore
     private List<Reservation> reservations = new ArrayList<>();
 
     // ============================================
     // LIFECYCLE CALLBACKS
     // ============================================
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        
-        if (availableSpots == null) {
-            availableSpots = totalSpots;
-        }
-    }
+    
 
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+   
 
     // ============================================
     // BUSINESS METHODS

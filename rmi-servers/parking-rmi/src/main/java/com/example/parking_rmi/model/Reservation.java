@@ -138,27 +138,7 @@ public class Reservation implements Serializable {
     private ParkingSpot parkingSpot;
 
     // LIFECYCLE CALLBACKS
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        
-        // ✅ FIX: Calculate with BigDecimal
-        if ((totalAmount == null || totalAmount.compareTo(BigDecimal.ZERO) == 0) 
-            && durationHours != null && parkingLot != null) {
-            totalAmount = parkingLot.getHourlyRate()
-                         .multiply(new BigDecimal(durationHours));
-        }
-        
-        if (endTime == null && startTime != null && durationHours != null) {
-            endTime = startTime.plusHours(durationHours);
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    
 
     // BUSINESS METHODS
     public boolean isActive() {

@@ -1,42 +1,47 @@
 package com.example.parking_rmi.controller;
 
-import com.example.parking_rmi.model.ParkingLot;
-import com.example.parking_rmi.model.ParkingSpot;
-import com.example.parking_rmi.service.ParkingServ;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+import com.example.parking_rmi.service.ParkingServ;
+import com.example.parking_rmi.Interface.ParkingService;
+import com.example.parking_rmi.dto.ParkingLotDTO;
+import com.example.parking_rmi.dto.ParkingSpotDTO;
+import com.example.parking_rmi.dto.ReservationDTO;
 
 @RestController
 @RequestMapping("/api/parking")
-
 public class ParkingController {
 
     @Autowired
-    private ParkingServ parkingServ;
+    private ParkingServ clientService;
 
-    // 1. Récupérer tous les parkings (Pour la HomePage et la Map)
-    @GetMapping("/lots")
-    public ResponseEntity<List<ParkingLot>> getAllParkingLots() {
-        return ResponseEntity.ok(parkingServ.getAllParkingLots());
+    @Autowired
+    private ParkingService parkingService;
+
+    @GetMapping
+    public ResponseEntity<List<ParkingLotDTO>> getAllParkingLots() {
+        return ResponseEntity.ok(clientService.getAllParkingLots());
     }
 
-    // 2. Récupérer un parking par ID
     @GetMapping("/{id}")
-    public ResponseEntity<ParkingLot> getParkingById(@PathVariable Long id) {
-        ParkingLot parking = parkingServ.getParkingLotById(id);
-        if (parking != null) {
-            return ResponseEntity.ok(parking);
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<ParkingLotDTO> getParkingLotById(@PathVariable Long id) {
+        ParkingLotDTO lot = clientService.getParkingLotById(id);
+        if (lot == null) return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(lot);
     }
 
-    // 3. Récupérer les places d'un parking (Pour le modal ParkingDetails)
-    @GetMapping("/{id}/spots")
-    public ResponseEntity<List<ParkingSpot>> getParkingSpots(@PathVariable Long id) {
-        return ResponseEntity.ok(parkingServ.getAvailableSpots(id));
+    @GetMapping("/{id}/spots/available")
+    public ResponseEntity<List<ParkingSpotDTO>> getAvailableSpots(@PathVariable Long id)throws Exception {
+        return ResponseEntity.ok(parkingService.getAvailableSpots(id));
+    }
+
+    @PostMapping("/reservation")
+    public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO reservation) {
+        ReservationDTO created = clientService.createReservation(reservation);
+        if (created == null) return ResponseEntity.badRequest().build();
+        return ResponseEntity.ok(created);
     }
 }

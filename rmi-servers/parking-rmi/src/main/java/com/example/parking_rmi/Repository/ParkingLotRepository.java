@@ -21,70 +21,42 @@ import java.util.Optional;
 public interface ParkingLotRepository extends JpaRepository<ParkingLot, Long> {
 
     
+   // ✅ CRITICAL FIX: Eagerly load spots to prevent LazyInitializationException in RMI
+    @Query("SELECT p FROM ParkingLot p LEFT JOIN FETCH p.spots WHERE p.id = :id")
+    Optional<ParkingLot> findByIdWithSpots(@Param("id") Long id);
+
     Optional<ParkingLot> findByName(String name);
 
-    /**
-     * Trouver un parking par nom de service RMI
-     */
     Optional<ParkingLot> findByRmiServiceName(String rmiServiceName);
 
-    /**
-     * Trouver tous les parkings par statut
-     */
     List<ParkingLot> findByStatus(ParkingStatus status);
 
-    /**
-     * Trouver tous les parkings actifs
-     */
     @Query("SELECT p FROM ParkingLot p WHERE p.status = 'ACTIVE'")
     List<ParkingLot> findAllActive();
 
-    /**
-     * Trouver tous les parkings avec places disponibles
-     */
     @Query("SELECT p FROM ParkingLot p WHERE p.status = 'ACTIVE' AND p.availableSpots > 0")
     List<ParkingLot> findAllWithAvailableSpots();
 
-    /**
-     * Trouver les parkings par ville
-     */
     List<ParkingLot> findByCity(String city);
 
-    /**
-     * Trouver les parkings dans un rayon donné (en km)
-     */
+    // Geo-location query
     @Query("SELECT p FROM ParkingLot p WHERE p.status = 'ACTIVE' " +
            "AND (6371 * acos(cos(radians(:latitude)) * cos(radians(p.latitude)) * " +
            "cos(radians(p.longitude) - radians(:longitude)) + sin(radians(:latitude)) * " +
            "sin(radians(p.latitude)))) < :radius")
     List<ParkingLot> findNearby(@Param("latitude") Double latitude,
-                                 @Param("longitude") Double longitude,
-                                 @Param("radius") Double radius);
+                                @Param("longitude") Double longitude,
+                                @Param("radius") Double radius);
 
-    /**
-     * Compter les parkings par statut
-     */
     Long countByStatus(ParkingStatus status);
 
-    /**
-     * Compter le nombre total de places disponibles
-     */
     @Query("SELECT SUM(p.availableSpots) FROM ParkingLot p WHERE p.status = 'ACTIVE'")
     Integer getTotalAvailableSpots();
 
-    /**
-     * Compter le nombre total de places
-     */
     @Query("SELECT SUM(p.totalSpots) FROM ParkingLot p WHERE p.status = 'ACTIVE'")
     Integer getTotalSpots();
 
-    /**
-     * Vérifier si un parking existe par nom
-     */
     boolean existsByName(String name);
 
-    /**
-     * Vérifier si un parking existe par service RMI
-     */
     boolean existsByRmiServiceName(String rmiServiceName);
 }

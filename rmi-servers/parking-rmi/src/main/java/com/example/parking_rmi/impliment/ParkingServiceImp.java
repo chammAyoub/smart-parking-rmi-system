@@ -2,17 +2,21 @@ package com.example.parking_rmi.impliment;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.parking_rmi.Interface.ParkingService;
 import com.example.parking_rmi.Repository.ParkingLotRepository;
 import com.example.parking_rmi.Repository.ParkingSpotRepository;
 import com.example.parking_rmi.Repository.ReservationRepository;
+import com.example.parking_rmi.dto.ParkingLotDTO;
+import com.example.parking_rmi.dto.ParkingSpotDTO;
+import com.example.parking_rmi.dto.ReservationDTO;
 import com.example.parking_rmi.model.ParkingLot;
 import com.example.parking_rmi.model.ParkingSpot;
 import com.example.parking_rmi.model.Reservation;
@@ -24,189 +28,227 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class ParkingServiceImp extends UnicastRemoteObject implements ParkingService {
 
-    public final ParkingLotRepository parkingLotRepository;
+    private final ParkingLotRepository parkingLotRepository;
+    private final ParkingSpotRepository parkingSpotRepository;
+    private final ReservationRepository reservationRepository;
 
-    public final ParkingSpotRepository parkingSpotRepository;
-
-    public final ReservationRepository reservationRepository;
-
-    public ParkingServiceImp(ParkingLotRepository parkingLotRepository,
-                             ParkingSpotRepository parkingSpotRepository,
-                             ReservationRepository reservationRepository
-                             ) throws RemoteException {
+    public ParkingServiceImp(ParkingLotRepository repo1, ParkingSpotRepository repo2, ReservationRepository repo3)
+            throws RemoteException {
         super();
-        this.parkingLotRepository=parkingLotRepository;
-        this.parkingSpotRepository=parkingSpotRepository;
-        this.reservationRepository=reservationRepository;
+        this.parkingLotRepository = repo1;
+        this.parkingSpotRepository = repo2;
+        this.reservationRepository = repo3;
+    }
+
+    // ==================== PARKING LOTS ====================
+
+    @Override
+    public List<ParkingLotDTO> getAllParkingLots() throws RemoteException {
+        List<ParkingLot> entities = parkingLotRepository.findAll();
+        // Convert to DTOs, false = do not load lazy spots list
+        return entities.stream().map(e -> mapToLotDTO(e, false)).collect(Collectors.toList());
     }
 
     @Override
-    public int getAvailableSpotsCount(Long parkingLotId) throws RemoteException {
-        Optional<ParkingLot> optional = parkingLotRepository.findById(parkingLotId);
-        if(optional.isPresent()){
-            return parkingLotRepository.getTotalAvailableSpots().intValue();
-        }
-        else{
-            return 0;
-        }
+    public ParkingLotDTO getParkingLotById(Long id) throws RemoteException {
+        ParkingLot entity = parkingLotRepository.findByIdWithSpots(id).orElse(null);
+        
+        if (entity == null) return null;
+
+        // Ensure the second parameter is true
+        return mapToLotDTO(entity, true);
     }
 
     @Override
-    public List<ParkingLot> getAllParkingLots() throws RemoteException {
-        return parkingLotRepository.findAll().size()==0?null:parkingLotRepository.findAll();
+    public List<ParkingLotDTO> getActiveParkingLots() throws RemoteException {
+        List<ParkingLot> entities = parkingLotRepository.findAllActive();
+        return entities.stream().map(e -> mapToLotDTO(e, false)).collect(Collectors.toList());
+    }
+
+    // ==================== SPOTS ====================
+
+    @Override
+    public List<ParkingSpotDTO> getAllSpotsByParkingLot(Long parkingLotId) throws RemoteException {
+        List<ParkingSpot> entities = parkingSpotRepository.findByParkingLotId(parkingLotId);
+        return entities.stream().map(this::mapToSpotDTO).collect(Collectors.toList());
     }
 
     @Override
-    public ParkingLot getParkingLotById(Long id) throws RemoteException {
-        Optional <ParkingLot> optional = parkingLotRepository.findById(id);
-        if (optional.isPresent()) {
-            return optional.get();
-        }
-        else{
-            log.info("the parking not exist !!");
-            return null;
-        }
+    public List<ParkingSpotDTO> getAvailableSpots(Long parkingLotId) throws RemoteException {
+        List<ParkingSpot> entities = parkingSpotRepository.findAccessibleSpotsByParkingLotId(parkingLotId);
+        return entities.stream().map(this::mapToSpotDTO).collect(Collectors.toList());
     }
 
     @Override
-    public List<ParkingLot> getActiveParkingLots() throws RemoteException {
-        return parkingLotRepository.findAllActive();
-    }
-
-    @Override
-    public List<ParkingSpot> getAllSpotsByParkingLot(Long parkingLotId) throws RemoteException {
-        Optional<ParkingLot> optional = parkingLotRepository.findById(parkingLotId);
-        if(optional.isPresent()){
-            return parkingSpotRepository.findByParkingLotId(parkingLotId);
-        }
-        else{
-            log.info(" parking not exist !!! ");
-            return null;
-        }
-    }
-
-    @Override
-    public List<ParkingSpot> getAvailableSpots(Long parkingLotId) throws RemoteException {
-        Optional <ParkingLot> optional = parkingLotRepository.findById(parkingLotId);
-        if (optional.isPresent()) {
-            return parkingSpotRepository.findAccessibleSpotsByParkingLotId(parkingLotId);
-        }
-        else{
-            log.info("parking not exist !!");
-            return null;
-        }
-    }
-
-    @Override
-    public ParkingSpot getSpotById(Long spotId) throws RemoteException {
-        Optional <ParkingSpot> optional = parkingSpotRepository.findById(spotId);
-        if( optional.isPresent()){
-            return optional.get();
-        }
-        else{
-            log.info("parking spot not exist !!");
-            return null;
-        }
+    public ParkingSpotDTO getSpotById(Long spotId) throws RemoteException {
+        return parkingSpotRepository.findById(spotId).map(this::mapToSpotDTO).orElse(null);
     }
 
     @Override
     public boolean updateSpotStatus(Long spotId, String status) throws RemoteException {
-        Optional<ParkingSpot> optional = parkingSpotRepository.findById(spotId);
-        if (!optional.isPresent()) {
+        ParkingSpot spot = parkingSpotRepository.findById(spotId).orElse(null);
+        if (spot == null)
             return false;
-        }
-        ParkingSpot parkingSpot = optional.get();
-        parkingSpot.setStatus(SpotStatus.valueOf(status));
-        parkingSpotRepository.save(parkingSpot);
 
-        ParkingLot parkingLot = parkingSpot.getParkingLot();
-        parkingLot.setAvailableSpots(getAvailableSpotsCount(parkingLot.getId()));
-        parkingLotRepository.save(parkingLot);
+        spot.setStatus(SpotStatus.valueOf(status));
+        parkingSpotRepository.save(spot);
+
+        // Update count in parent
+        ParkingLot lot = spot.getParkingLot();
+        lot.setAvailableSpots(parkingSpotRepository.countAvailableSpots(lot.getId()).intValue());
+        parkingLotRepository.save(lot);
         return true;
-        
     }
 
+    // ==================== RESERVATIONS ====================
+
     @Override
-    public Reservation createReservation(Reservation reservationDTO) throws RemoteException {
-        Optional <ParkingSpot> optional = parkingSpotRepository.findById(reservationDTO.getParkingSpot().getId());
-        if(!optional.isPresent()||!optional.get().getStatus().equals(SpotStatus.AVAILABLE)){
+    public ReservationDTO createReservation(ReservationDTO dto) throws RemoteException {
+        ParkingSpot spot = parkingSpotRepository.findById(dto.getParkingSpotId()).orElse(null);
+
+        if (spot == null || spot.getStatus() != SpotStatus.AVAILABLE)
             return null;
-        }
-        ParkingSpot parkingSpot = optional.get();
-        ParkingLot parkingLot= parkingSpot.getParkingLot();
 
-        reservationDTO.setParkingSpot(parkingSpot);
-        reservationDTO.setParkingLot(parkingLot);
+        Reservation entity = new Reservation();
+        entity.setUserName(dto.getUserName());
+        entity.setUserEmail(dto.getUserEmail());
+        entity.setUserPhone(dto.getUserPhone());
+        entity.setLicensePlate(dto.getLicensePlate());
+        entity.setStartTime(dto.getStartTime());
+        entity.setEndTime(dto.getEndTime());
+        entity.setTotalAmount(dto.getTotalAmount());
 
-        parkingSpot.setCurrentReservation(reservationDTO);
-        
-        parkingSpotRepository.save(parkingSpot);
+        // Link relations
+        entity.setParkingSpot(spot);
+        entity.setParkingLot(spot.getParkingLot());
 
-        Reservation currentReservation = reservationRepository.save(reservationDTO);
+        // Save
+        Reservation saved = reservationRepository.save(entity);
 
-        parkingLot.setAvailableSpots(getAvailableSpotsCount(parkingLot.getId()));
-        parkingLotRepository.save(parkingLot);
+        // Update Spot
+        spot.setStatus(SpotStatus.RESERVED);
+        parkingSpotRepository.save(spot);
 
-        return currentReservation;
-
+        return mapToResDTO(saved);
     }
 
     @Override
-    public Reservation getReservationById(Long id) throws RemoteException {
-
-        Optional <Reservation> optional = reservationRepository.findById(id);
-        if(!optional.isPresent()){
-            log.info("Reservation not exist !!");
-            return null;
-        }
-        return optional.get();
+    public ReservationDTO getReservationById(Long id) throws RemoteException {
+        return reservationRepository.findById(id).map(this::mapToResDTO).orElse(null);
     }
 
     @Override
-    public List<Reservation> getReservationsByUserEmail(String email) throws RemoteException {
-        return reservationRepository.findActiveReservationsByUserEmail(email);
+    public List<ReservationDTO> getReservationsByUserEmail(String email) throws RemoteException {
+        return reservationRepository.findActiveReservationsByUserEmail(email)
+                .stream().map(this::mapToResDTO).collect(Collectors.toList());
     }
 
     @Override
     public boolean cancelReservation(Long id) throws RemoteException {
-        Optional <Reservation> optional = reservationRepository.findById(id);
-        if(!optional.isPresent()){
+        Reservation res = reservationRepository.findById(id).orElse(null);
+        if (res == null)
             return false;
+
+        res.cancel("Cancelled by user");
+
+        // Free spot
+        ParkingSpot spot = res.getParkingSpot();
+        if (spot != null) {
+            spot.setStatus(SpotStatus.AVAILABLE);
+            parkingSpotRepository.save(spot);
         }
-        Reservation reservation = optional.get();
-        ParkingSpot parkingSpot = reservation.getParkingSpot();
-
-        parkingSpot.setStatus(SpotStatus.AVAILABLE);
-        parkingSpot.setCurrentReservation(null);
-        parkingSpotRepository.save(parkingSpot);
-
-        reservation.cancel("no reason");
-        reservation.setParkingSpot(null);
-        reservationRepository.save(reservation);
-
-        ParkingLot parkingLot = parkingSpot.getParkingLot();
-        parkingLot.setAvailableSpots(getAvailableSpotsCount(parkingLot.getId()));
-        parkingLotRepository.save(parkingLot);
-
+        reservationRepository.save(res);
         return true;
+    }
+
+    // ==================== STATISTICS ====================
+
+    @Override
+    public int getAvailableSpotsCount(Long parkingLotId) throws RemoteException {
+        Long count = parkingSpotRepository.countAvailableSpots(parkingLotId);
+        return count != null ? count.intValue() : 0;
     }
 
     @Override
     public int getTotalAvailableSpots() throws RemoteException {
-        return parkingLotRepository.getTotalAvailableSpots();
+        Integer total = parkingLotRepository.getTotalAvailableSpots();
+        return total != null ? total : 0;
     }
 
     @Override
     public double getOccupancyRate(Long parkingLotId) throws RemoteException {
-        ParkingLot parking = parkingLotRepository.findById(parkingLotId)
-                .orElseThrow(() -> new RemoteException("Parking non trouvé"));
-        
+        ParkingLot lot = parkingLotRepository.findById(parkingLotId).orElse(null);
+        if (lot == null || lot.getTotalSpots() == 0)
+            return 0.0;
+
         int available = getAvailableSpotsCount(parkingLotId);
-        int total = parking.getTotalSpots();
-        
-        if (total == 0) return 0.0;
-        
-        return ((double) (total - available) / total) * 100.0;
+        return ((double) (lot.getTotalSpots() - available) / lot.getTotalSpots()) * 100.0;
     }
-    
+
+    // ==================== CONVERSION HELPERS (Entity -> DTO) ====================
+
+    private ParkingLotDTO mapToLotDTO(ParkingLot e, boolean deep) {
+        ParkingLotDTO d = new ParkingLotDTO();
+        d.setId(e.getId());
+        d.setName(e.getName());
+        d.setAddress(e.getAddress());
+        d.setCity(e.getCity());
+        d.setLatitude(e.getLatitude());
+        d.setLongitude(e.getLongitude());
+        d.setTotalSpots(e.getTotalSpots());
+        d.setAvailableSpots(e.getAvailableSpots());
+        d.setRmiHost(e.getRmiHost());
+        d.setRmiPort(e.getRmiPort());
+        d.setRmiServiceName(e.getRmiServiceName());
+        d.setStatus(e.getStatus().name());
+        d.setHourlyRate(e.getHourlyRate());
+        d.setOpeningTime(e.getOpeningTime());
+        d.setClosingTime(e.getClosingTime());
+
+        // ✅ SAFETY CHECK: Only map spots if 'deep' is true AND Hibernate actually
+        // loaded them
+        if (deep && e.getSpots() != null && Hibernate.isInitialized(e.getSpots())) {
+            d.setParkingSpot(e.getSpots().stream().map(this::mapToSpotDTO).collect(Collectors.toList()));
+        } else {
+            d.setParkingSpot(new ArrayList<>()); // Return empty list if lazy or not requested
+        }
+
+        // ✅ SAFETY CHECK: Do same for reservations
+        if (deep && e.getReservations() != null && Hibernate.isInitialized(e.getReservations())) {
+            d.setReservations(e.getReservations().stream().map(this::mapToResDTO).collect(Collectors.toList()));
+        } else {
+            d.setReservations(new ArrayList<>());
+        }
+
+        return d;
+    }
+
+    private ParkingSpotDTO mapToSpotDTO(ParkingSpot e) {
+        ParkingSpotDTO d = new ParkingSpotDTO();
+        d.setId(e.getId());
+        d.setSpotNumber(e.getSpotNumber());
+        d.setStatus(e.getStatus().name());
+        d.setSpotType(e.getSpotType().name());
+        d.setFloorNumber(e.getFloorNumber());
+        d.setSection(e.getSection());
+        d.setIsAccessible(e.getIsAccessible());
+        d.setParkingLotId(e.getParkingLot().getId()); // ID Only
+        return d;
+    }
+
+    private ReservationDTO mapToResDTO(Reservation e) {
+        ReservationDTO d = new ReservationDTO();
+        d.setId(e.getId());
+        d.setUserName(e.getUserName());
+        d.setUserEmail(e.getUserEmail());
+        d.setLicensePlate(e.getLicensePlate());
+        d.setStartTime(e.getStartTime());
+        d.setEndTime(e.getEndTime());
+        d.setStatus(e.getStatus().name());
+        if (e.getParkingLot() != null)
+            d.setParkingLotId(e.getParkingLot().getId());
+        if (e.getParkingSpot() != null)
+            d.setParkingSpotId(e.getParkingSpot().getId());
+        return d;
+    }
 }

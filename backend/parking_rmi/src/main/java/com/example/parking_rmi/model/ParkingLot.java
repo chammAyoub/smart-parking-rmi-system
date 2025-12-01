@@ -47,18 +47,7 @@ public class ParkingLot implements Serializable {
     // ============================================
     // LIFECYCLE CALLBACKS
     // ============================================
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
 
-        if (availableSpots == null) {
-            availableSpots = totalSpots;
-        }
-    }
-
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 
     // ============================================
     // BUSINESS METHODS

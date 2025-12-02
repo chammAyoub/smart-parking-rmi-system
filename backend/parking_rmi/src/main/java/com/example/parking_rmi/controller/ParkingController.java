@@ -1,5 +1,6 @@
 package com.example.parking_rmi.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import com.example.parking_rmi.Interface.ParkingService;
 import com.example.parking_rmi.dto.ParkingLotDTO;
 import com.example.parking_rmi.dto.ParkingSpotDTO;
 import com.example.parking_rmi.dto.ReservationDTO;
+import com.example.parking_rmi.model.ParkingSpot.SpotStatus;
 
 @RestController
 @RequestMapping("/api/parking")
@@ -21,21 +23,31 @@ public class ParkingController {
     @Autowired
     private ParkingService parkingService;
 
-    @GetMapping
+    @GetMapping("/lots")
     public ResponseEntity<List<ParkingLotDTO>> getAllParkingLots() {
         return ResponseEntity.ok(clientService.getAllParkingLots());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ParkingLotDTO> getParkingLotById(@PathVariable Long id) {
-        ParkingLotDTO lot = clientService.getParkingLotById(id);
-        if (lot == null) return ResponseEntity.notFound().build();
+    public ResponseEntity<ParkingLotDTO> getParkingLotById(@PathVariable Long id) throws Exception {
+        ParkingLotDTO lot = parkingService.getParkingLotById(id);
+        List <ParkingSpotDTO> parkingSpotDTOs = parkingService.getAllSpotsByParkingLot(id);
+        List<ReservationDTO> reservationDTOs = parkingService.getReservationDTOsByParkingLot(id);
+        lot.setSpots(parkingSpotDTOs);
+        lot.setReservations(reservationDTOs);
         return ResponseEntity.ok(lot);
     }
 
     @GetMapping("/{id}/spots/available")
     public ResponseEntity<List<ParkingSpotDTO>> getAvailableSpots(@PathVariable Long id)throws Exception {
-        return ResponseEntity.ok(parkingService.getAvailableSpots(id));
+        List<ParkingSpotDTO> parkingSpotDTOs =parkingService.getAllSpotsByParkingLot(id);
+        List<ParkingSpotDTO> resulta = new ArrayList<>();
+        for (ParkingSpotDTO parkingSpotDTO : parkingSpotDTOs) {
+            if (parkingSpotDTO.getStatus().equals(SpotStatus.AVAILABLE.name())) {
+                resulta.add(parkingSpotDTO);
+            }
+        }
+        return ResponseEntity.ok(resulta);
     }
 
     @PostMapping("/reservation")

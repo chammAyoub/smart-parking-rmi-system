@@ -34,5 +34,6 @@ public interface ParkingService extends Remote {
     public ReservationDTO getReservationById(Long id) throws RemoteException;
     public List<ReservationDTO> getReservationsByUserEmail(String email) throws RemoteException;
     public boolean cancelReservation(Long id) throws RemoteException;
+    public List<ReservationDTO> getReservationDTOsByParkingLot(long id) throws RemoteException;
 
 }

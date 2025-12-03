@@ -251,4 +251,19 @@ public class ParkingServiceImp extends UnicastRemoteObject implements ParkingSer
             d.setParkingSpotId(e.getParkingSpot().getId());
         return d;
     }
+
+    @Override
+    public List<ReservationDTO> getReservationDTOsByParkingLot(long id) throws RemoteException {
+        List<Reservation> reservations = reservationRepository.findByParkingLotId(id);
+        List<ReservationDTO> reservationDTOs = new ArrayList<>(); 
+        if(reservations !=null){
+            for (Reservation reservation : reservations) {
+                reservationDTOs.add(mapToResDTO(reservation));
+            }
+            return reservationDTOs;
+        }
+        else{
+            return null;
+        }
+    }
 }

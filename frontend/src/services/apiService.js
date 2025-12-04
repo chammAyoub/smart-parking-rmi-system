@@ -26,16 +26,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     console.log('✅ API Response:', response.status, response.config.url);
-    return response.data;
+    return response;
   },
   (error) => {
     console.error('❌ Response Error:', error.response?.status, error.message);
-    
     const errorMessage = error.response?.data?.message || 
-                        error.response?.data?.error || 
-                        error.message || 
-                        'Une erreur est survenue';
-    
+                         error.message || 
+                         'Une erreur est survenue';
     return Promise.reject(new Error(errorMessage));
   }
 );
@@ -46,84 +43,47 @@ api.interceptors.response.use(
  * Récupérer tous les parkings
  */
 export const getAllParkingLots = async () => {
-  try {
-    const data = await api.get(ENDPOINTS.PARKING_LOTS);
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get(ENDPOINTS.PARKING_LOTS);
+  return response.data;
 };
 
 /**
  * Récupérer un parking par ID
  */
 export const getParkingById = async (id) => {
-  try {
-    const data = await api.get(ENDPOINTS.PARKING_BY_ID(id));
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get(ENDPOINTS.PARKING_BY_ID(id));
+  return response.data;
 };
 
 /**
  * Récupérer les places d'un parking
  */
 export const getParkingSpots = async (parkingId) => {
-  try {
-    const data = await api.get(ENDPOINTS.PARKING_SPOTS(parkingId));
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get(ENDPOINTS.PARKING_SPOTS(parkingId));
+  return response.data;
 };
 
 /**
  * Créer une réservation
  */
 export const createReservation = async (reservationData) => {
-  try {
-    const data = await api.post(ENDPOINTS.RESERVATIONS, reservationData);
-    return data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-/**
- * Récupérer une réservation par ID
- */
-export const getReservationById = async (id) => {
-  try {
-    const data = await api.get(ENDPOINTS.RESERVATION_BY_ID(id));
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.post(ENDPOINTS.RESERVATIONS, reservationData);
+  return response.data;
 };
 
 /**
  * Récupérer les réservations d'un utilisateur
  */
 export const getUserReservations = async (email) => {
-  try {
-    const data = await api.get(ENDPOINTS.USER_RESERVATIONS(email));
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get(ENDPOINTS.USER_RESERVATIONS(email));
+  return response.data;
 };
 
 /**
  * Annuler une réservation
  */
 export const cancelReservation = async (id) => {
-  try {
-    const data = await api.delete(ENDPOINTS.CANCEL_RESERVATION(id));
-    return data;
-  } catch (error) {
-    throw error;
-  }
+  await api.delete(ENDPOINTS.CANCEL_RESERVATION(id));
 };
 
 export default api;

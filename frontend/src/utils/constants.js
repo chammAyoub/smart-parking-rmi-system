@@ -1,11 +1,11 @@
 // API Configuration
-export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
+export const API_BASE_URL = 'http://localhost:8080/api';
 
 // Parking Spot Status
 export const PARKING_STATUS = {
-  AVAILABLE: 'available',
-  OCCUPIED: 'occupied',
-  RESERVED: 'reserved'
+  AVAILABLE: 'AVAILABLE', // Backend uses Uppercase Enums
+  OCCUPIED: 'OCCUPIED',
+  RESERVED: 'RESERVED'
 };
 
 // Status Colors
@@ -37,13 +37,6 @@ export const DURATION_OPTIONS = [
   { value: 12, label: '12 heures' },
   { value: 24, label: '24 heures' }
 ];
-
-// Availability Thresholds
-export const AVAILABILITY_THRESHOLDS = {
-  HIGH: 0.5,    // > 50% available
-  MEDIUM: 0.2,  // 20-50% available
-  LOW: 0        // < 20% available
-};
 
 // Toast Types
 export const TOAST_TYPES = {

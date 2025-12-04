@@ -3,8 +3,9 @@ import { X, User, Mail, Phone, Car, Clock, Calendar } from 'lucide-react';
 import { validateEmail, validatePhone, validateName, validateLicensePlate } from '../utils/validators';
 import { calculateEndTime, getCurrentDateTime } from '../utils/dateUtils';
 import { DURATION_OPTIONS } from '../utils/constants';
+import { createReservation } from '../services/apiService';
 
-const ReservationModal = ({ isOpen, onClose, parking, spot, onConfirm }) => {
+const ReservationModal = ({ isOpen, onClose, parking, spot, onSuccess }) => {
   const [formData, setFormData] = useState({
     userName: '',
     userEmail: '',
@@ -16,60 +17,25 @@ const ReservationModal = ({ isOpen, onClose, parking, spot, onConfirm }) => {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
 
   if (!isOpen) return null;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    //clear error when user types
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    const nameValidation = validateName(formData.userName);
-    if (!nameValidation.isValid) {
-      newErrors.userName = nameValidation.error;
-    }
-
-    const emailValidation = validateEmail(formData.userEmail);
-    if (!emailValidation.isValid) {
-      newErrors.userEmail = emailValidation.error;
-    }
-
-    const phoneValidation = validatePhone(formData.userPhone);
-    if (!phoneValidation.isValid) {
-      newErrors.userPhone = phoneValidation.error;
-    }
-
-    const plateValidation = validateLicensePlate(formData.licensePlate);
-    if (!plateValidation.isValid) {
-      newErrors.licensePlate = plateValidation.error;
-    }
-
-    if (!formData.startTime) {
-      newErrors.startTime = 'Date et heure requises';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+    setApiError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setApiError(null);
 
-    if (!validateForm()) {
-      return;
+    // Validation basique (tu peux garder tes validateurs ici)
+    if (!formData.userName || !formData.userEmail) {
+        setErrors({ userName: 'Requis', userEmail: 'Requis' });
+        return;
     }
 
     setLoading(true);
@@ -77,218 +43,89 @@ const ReservationModal = ({ isOpen, onClose, parking, spot, onConfirm }) => {
     try {
       const endTime = calculateEndTime(formData.startTime, formData.duration);
 
-      const reservationData = {
-        parkingId: parking.id,
-        spotId: spot.id,
-        spotNumber: spot.spotNumber,
+      const reservationPayload = {
+        parkingLotId: parking.id,
+        parkingSpotId: spot.id,
         userName: formData.userName,
         userEmail: formData.userEmail,
         userPhone: formData.userPhone,
         licensePlate: formData.licensePlate,
         startTime: formData.startTime,
         endTime: endTime.toISOString(),
-        duration: formData.duration,
+        durationHours: formData.duration,
+        spotNumber: spot.spotNumber,
         parkingName: parking.name
       };
 
-      await onConfirm(reservationData);
+      await createReservation(reservationPayload);
+      onSuccess(); // Ferme le modal et refresh
     } catch (error) {
-      console.error('Erreur lors de la réservation:', error);
+      console.error('Erreur réservation:', error);
+      setApiError(error.message || "Erreur lors de la réservation");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-primary to-secondary text-white p-6 rounded-t-2xl">
-          <div className="flex justify-between items-start">
-            <div>
-              <h2 className="text-2xl font-bold mb-1">Réservation</h2>
-              <p className="text-white/90 text-sm">{parking.name} - Place {spot.spotNumber}</p>
-            </div>
-            <button
-              onClick={onClose}
-              className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition"
-              disabled={loading}
-            >
-              <X className="w-6 h-6" />
-            </button>
+        <div className="sticky top-0 bg-gradient-to-r from-primary to-secondary text-white p-6 rounded-t-2xl flex justify-between items-start">
+          <div>
+            <h2 className="text-2xl font-bold mb-1">Réservation</h2>
+            <p className="text-white/90 text-sm">{parking.name} - Place {spot.spotNumber}</p>
           </div>
+          <button onClick={onClose} disabled={loading} className="bg-white/20 hover:bg-white/30 rounded-full p-2 transition"><X className="w-6 h-6" /></button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Nom complet */}
+          {apiError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+              {apiError}
+            </div>
+          )}
+
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <User className="w-4 h-4 inline mr-2" />
-              Nom complet *
-            </label>
-            <input
-              type="text"
-              name="userName"
-              value={formData.userName}
-              onChange={handleChange}
-              placeholder="Ex: Ahmed Bennani"
-              className={`
-                w-full px-4 py-3 border rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-primary
-                ${errors.userName ? 'border-red-500' : 'border-gray-300'}
-              `}
-            />
-            {errors.userName && (
-              <p className="text-red-500 text-sm mt-1">{errors.userName}</p>
-            )}
+            <label className="block text-sm font-semibold text-gray-700 mb-2"><User className="w-4 h-4 inline mr-2" /> Nom complet *</label>
+            <input type="text" name="userName" value={formData.userName} onChange={handleChange} placeholder="Ex: Ahmed Bennani" className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary" required />
           </div>
 
-          {/* Email */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <Mail className="w-4 h-4 inline mr-2" />
-              Email *
-            </label>
-            <input
-              type="email"
-              name="userEmail"
-              value={formData.userEmail}
-              onChange={handleChange}
-              placeholder="ahmed@example.com"
-              className={`
-                w-full px-4 py-3 border rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-primary
-                ${errors.userEmail ? 'border-red-500' : 'border-gray-300'}
-              `}
-            />
-            {errors.userEmail && (
-              <p className="text-red-500 text-sm mt-1">{errors.userEmail}</p>
-            )}
+            <label className="block text-sm font-semibold text-gray-700 mb-2"><Mail className="w-4 h-4 inline mr-2" /> Email *</label>
+            <input type="email" name="userEmail" value={formData.userEmail} onChange={handleChange} placeholder="ahmed@example.com" className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary" required />
           </div>
 
-          {/* Téléphone */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <Phone className="w-4 h-4 inline mr-2" />
-              Téléphone *
-            </label>
-            <input
-              type="tel"
-              name="userPhone"
-              value={formData.userPhone}
-              onChange={handleChange}
-              placeholder="0612345678"
-              className={`
-                w-full px-4 py-3 border rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-primary
-                ${errors.userPhone ? 'border-red-500' : 'border-gray-300'}
-              `}
-            />
-            {errors.userPhone && (
-              <p className="text-red-500 text-sm mt-1">{errors.userPhone}</p>
-            )}
+            <label className="block text-sm font-semibold text-gray-700 mb-2"><Phone className="w-4 h-4 inline mr-2" /> Téléphone</label>
+            <input type="tel" name="userPhone" value={formData.userPhone} onChange={handleChange} placeholder="0612345678" className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary" />
           </div>
 
-          {/* Immatriculation */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <Car className="w-4 h-4 inline mr-2" />
-              Immatriculation *
-            </label>
-            <input
-              type="text"
-              name="licensePlate"
-              value={formData.licensePlate}
-              onChange={handleChange}
-              placeholder="12345-A-67"
-              className={`
-                w-full px-4 py-3 border rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-primary
-                ${errors.licensePlate ? 'border-red-500' : 'border-gray-300'}
-              `}
-            />
-            {errors.licensePlate && (
-              <p className="text-red-500 text-sm mt-1">{errors.licensePlate}</p>
-            )}
+            <label className="block text-sm font-semibold text-gray-700 mb-2"><Car className="w-4 h-4 inline mr-2" /> Immatriculation *</label>
+            <input type="text" name="licensePlate" value={formData.licensePlate} onChange={handleChange} placeholder="12345-A-67" className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary" required />
           </div>
 
-          {/* Date et heure */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <Calendar className="w-4 h-4 inline mr-2" />
-              Date et heure de début *
-            </label>
-            <input
-              type="datetime-local"
-              name="startTime"
-              value={formData.startTime}
-              onChange={handleChange}
-              min={getCurrentDateTime()}
-              className={`
-                w-full px-4 py-3 border rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-primary
-                ${errors.startTime ? 'border-red-500' : 'border-gray-300'}
-              `}
-            />
-            {errors.startTime && (
-              <p className="text-red-500 text-sm mt-1">{errors.startTime}</p>
-            )}
+            <label className="block text-sm font-semibold text-gray-700 mb-2"><Calendar className="w-4 h-4 inline mr-2" /> Date début *</label>
+            <input type="datetime-local" name="startTime" value={formData.startTime} onChange={handleChange} min={getCurrentDateTime()} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary" required />
           </div>
 
-          {/* Durée */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              <Clock className="w-4 h-4 inline mr-2" />
-              Durée de stationnement *
-            </label>
-            <select
-              name="duration"
-              value={formData.duration}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            >
-              {DURATION_OPTIONS.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
+            <label className="block text-sm font-semibold text-gray-700 mb-2"><Clock className="w-4 h-4 inline mr-2" /> Durée *</label>
+            <select name="duration" value={formData.duration} onChange={handleChange} className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary">
+              {DURATION_OPTIONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
           </div>
 
-          {/* Prix estimé */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-700 font-semibold">Prix estimé :</span>
-              <span className="text-2xl font-bold text-primary">
-                {formData.duration * 10} DH
-              </span>
-            </div>
-            <p className="text-xs text-gray-600 mt-1">Tarif : 10 DH/heure</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex justify-between items-center">
+            <span className="text-gray-700 font-semibold">Prix estimé :</span>
+            <span className="text-2xl font-bold text-primary">{formData.duration * 10} DH</span>
           </div>
 
-          {/* Buttons */}
           <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={loading}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition disabled:opacity-50"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`
-                flex-1 font-semibold py-3 px-6 rounded-lg transition
-                ${loading
-                  ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-primary hover:bg-secondary text-white'
-                }
-              `}
-            >
-              {loading ? 'Réservation...' : 'Confirmer'}
+            <button type="button" onClick={onClose} disabled={loading} className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition">Annuler</button>
+            <button type="submit" disabled={loading} className={`flex-1 font-semibold py-3 px-6 rounded-lg transition ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-secondary text-white'}`}>
+              {loading ? 'Traitement...' : 'Confirmer'}
             </button>
           </div>
         </form>

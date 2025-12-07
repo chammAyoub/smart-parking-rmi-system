@@ -2,8 +2,7 @@ package com.example.parking_rmi.controller;
 
 import com.example.parking_rmi.Interface.ParkingService;
 import com.example.parking_rmi.dto.ReservationDTO;
-import com.example.parking_rmi.service.ParkingServ;
-import lombok.RequiredArgsConstructor;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

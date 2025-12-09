@@ -1,0 +1,96 @@
+package com.example.parking_rmi.service;
+
+import com.example.parking_rmi.Repository.ParkingLotRepository;
+import com.example.parking_rmi.Repository.ParkingSpotRepository;
+import com.example.parking_rmi.dto.ParkingSpotDTO;
+import com.example.parking_rmi.model.ParkingLot;
+import com.example.parking_rmi.model.ParkingSpot;
+import com.example.parking_rmi.model.ParkingSpot.SpotStatus;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class ParkingSpotService {
+
+    private final ParkingSpotRepository parkingSpotRepository;
+    private final ParkingLotRepository parkingLotRepository;
+
+    @Transactional(readOnly = true)
+    public List<ParkingSpotDTO> getAllSpotsByParkingLot(Long parkingLotId) {
+        return parkingSpotRepository.findByParkingLotId(parkingLotId).stream()
+                .map(this::mapToSpotDTO).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ParkingSpotDTO> getAvailableSpots(Long parkingLotId) {
+        return parkingSpotRepository.findAccessibleSpotsByParkingLotId(parkingLotId).stream()
+                .map(this::mapToSpotDTO).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ParkingSpotDTO getSpotById(Long spotId) {
+        return parkingSpotRepository.findById(spotId)
+                .map(this::mapToSpotDTO).orElse(null);
+    }
+
+    // 🚨 TRANSACTIONAL: Updates Spot AND ParkingLot
+    @Transactional
+    public boolean updateSpotStatus(Long spotId, String statusStr) {
+        ParkingSpot spot = parkingSpotRepository.findById(spotId).orElse(null);
+        if (spot == null) return false;
+
+        try {
+            SpotStatus newStatus = SpotStatus.valueOf(statusStr);
+            spot.setStatus(newStatus);
+            parkingSpotRepository.save(spot);
+
+            // Update parent count
+            ParkingLot lot = spot.getParkingLot();
+            if (lot != null) {
+                // Assuming you have a count query in repo
+                Long count = parkingSpotRepository.countAvailableSpots(lot.getId());
+                lot.setAvailableSpots(count != null ? count.intValue() : 0);
+                parkingLotRepository.save(lot);
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public int getAvailableSpotsCount(Long parkingLotId) {
+        Long count = parkingSpotRepository.countAvailableSpots(parkingLotId);
+        return count != null ? count.intValue() : 0;
+    }
+
+    @Transactional(readOnly = true)
+    public double getOccupancyRate(Long parkingLotId) {
+        ParkingLot lot = parkingLotRepository.findById(parkingLotId).orElse(null);
+        if (lot == null || lot.getTotalSpots() == 0) return 0.0;
+
+        int available = getAvailableSpotsCount(parkingLotId);
+        return ((double) (lot.getTotalSpots() - available) / lot.getTotalSpots()) * 100.0;
+    }
+
+    private ParkingSpotDTO mapToSpotDTO(ParkingSpot e) {
+        ParkingSpotDTO d = new ParkingSpotDTO();
+        d.setId(e.getId());
+        d.setSpotNumber(e.getSpotNumber());
+        d.setStatus(e.getStatus().name());
+        d.setSpotType(e.getSpotType().name());
+        d.setFloorNumber(e.getFloorNumber());
+        d.setSection(e.getSection());
+        d.setIsAccessible(e.getIsAccessible());
+        if(e.getParkingLot() != null) {
+            d.setParkingLotId(e.getParkingLot().getId());
+        }
+        return d;
+    }
+}

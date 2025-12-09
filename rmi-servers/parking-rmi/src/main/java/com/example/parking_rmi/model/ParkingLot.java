@@ -135,10 +135,6 @@ public class ParkingLot implements Serializable {
     // LIFECYCLE CALLBACKS
     // ============================================
 
-    
-
-   
-
     // ============================================
     // BUSINESS METHODS
     // ============================================

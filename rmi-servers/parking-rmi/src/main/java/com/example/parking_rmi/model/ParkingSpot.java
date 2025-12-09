@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -97,17 +98,16 @@ public class ParkingSpot implements Serializable {
      * Relation OneToOne avec Reservation
      * Une place peut avoir une réservation active
      */
-    @OneToOne(mappedBy = "parkingSpot", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore
-    private Reservation currentReservation;
+    @OneToMany(mappedBy = "parkingSpot", fetch = FetchType.LAZY)
+    private List<Reservation> reservations;
+    
 
     // ============================================
     // LIFECYCLE CALLBACKS
     // ============================================
-
-    
 
     // ============================================
     // BUSINESS METHODS

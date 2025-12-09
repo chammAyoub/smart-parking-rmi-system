@@ -12,16 +12,13 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(
-    name = "reservations",
-    indexes = {
+@Table(name = "reservations", indexes = {
         @Index(name = "idx_reservation_user_email", columnList = "user_email"),
         @Index(name = "idx_reservation_status", columnList = "status"),
         @Index(name = "idx_reservation_parking_lot", columnList = "parking_lot_id"),
         @Index(name = "idx_reservation_parking_spot", columnList = "parking_spot_id"),
         @Index(name = "idx_reservation_dates", columnList = "start_time, end_time")
-    }
-)
+})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -46,18 +43,12 @@ public class Reservation implements Serializable {
     private String userEmail;
 
     @NotBlank(message = "Le numéro de téléphone est requis")
-    @Pattern(
-        regexp = "^(\\+212|0)[5-7]\\d{8}$",
-        message = "Format de téléphone invalide (ex: 0612345678 ou +212612345678)"
-    )
+    @Pattern(regexp = "^(\\+212|0)[5-7]\\d{8}$", message = "Format de téléphone invalide (ex: 0612345678 ou +212612345678)")
     @Column(name = "user_phone", nullable = false, length = 20)
     private String userPhone;
 
     @NotBlank(message = "L'immatriculation du véhicule est requise")
-    @Pattern(
-        regexp = "^\\d{1,6}-[A-Z]{1,2}-\\d{1,2}$",
-        message = "Format d'immatriculation invalide (ex: 12345-A-67)"
-    )
+    @Pattern(regexp = "^\\d{1,6}-[A-Z]{1,2}-\\d{1,2}$", message = "Format d'immatriculation invalide (ex: 12345-A-67)")
     @Column(name = "license_plate", nullable = false, length = 20)
     private String licensePlate;
 
@@ -116,30 +107,22 @@ public class Reservation implements Serializable {
 
     // RELATIONS
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-        name = "parking_lot_id",
-        nullable = false,
-        foreignKey = @ForeignKey(name = "fk_reservation_parking_lot")
-    )
+    @JoinColumn(name = "parking_lot_id", nullable = false, foreignKey = @ForeignKey(name = "fk_reservation_parking_lot"))
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @JsonIgnoreProperties({"reservations", "spots"})
+    @JsonIgnoreProperties({ "reservations", "spots" })
     private ParkingLot parkingLot;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(
-        name = "parking_spot_id",
-        nullable = false,
-        foreignKey = @ForeignKey(name = "fk_reservation_parking_spot")
-    )
+  
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "parking_spot_id", nullable = false, foreignKey = @ForeignKey(name = "fk_reservation_parking_spot"))
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    @JsonIgnoreProperties("currentReservation")
+    @JsonIgnoreProperties("reservations")
     private ParkingSpot parkingSpot;
 
     // LIFECYCLE CALLBACKS
-    
-
     // BUSINESS METHODS
     public boolean isActive() {
         return status == ReservationStatus.CONFIRMED || status == ReservationStatus.PENDING;
@@ -177,7 +160,7 @@ public class Reservation implements Serializable {
         if (isCancelled() || isCompleted()) {
             throw new IllegalStateException("Cette réservation ne peut pas être annulée");
         }
-        
+
         this.status = ReservationStatus.CANCELLED;
         this.cancellationReason = reason;
         this.cancelledAt = LocalDateTime.now();
@@ -187,7 +170,7 @@ public class Reservation implements Serializable {
         if (!isConfirmed()) {
             throw new IllegalStateException("Seules les réservations confirmées peuvent être complétées");
         }
-        
+
         this.status = ReservationStatus.COMPLETED;
         this.checkOutTime = LocalDateTime.now();
     }
@@ -196,7 +179,7 @@ public class Reservation implements Serializable {
         if (!isConfirmed()) {
             throw new IllegalStateException("Seules les réservations confirmées peuvent effectuer le check-in");
         }
-        
+
         this.checkInTime = LocalDateTime.now();
     }
 
@@ -204,25 +187,25 @@ public class Reservation implements Serializable {
         if (endTime == null || isCompleted() || isCancelled()) {
             return 0L;
         }
-        
+
         Duration duration = Duration.between(LocalDateTime.now(), endTime);
         return duration.toMinutes();
     }
 
     public String getFormattedRemainingTime() {
         Long minutes = getRemainingMinutes();
-        
+
         if (minutes <= 0) {
             return "Expiré";
         }
-        
+
         long hours = minutes / 60;
         long mins = minutes % 60;
-        
+
         if (hours > 0) {
             return String.format("%dh %dmin", hours, mins);
         }
-        
+
         return String.format("%dmin", mins);
     }
 

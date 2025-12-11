@@ -8,17 +8,22 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
-  // Vérifier si l'utilisateur est connecté
+  // Vérifier si l'utilisateur est connecté et son rôle
   useEffect(() => {
     const userToken = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
     setIsLoggedIn(!!userToken);
+    setUserRole(role);
   }, []);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    setUserRole(null);
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
+    localStorage.removeItem("role");
     // Rediriger vers l'accueil
     window.location.href = "/";
   };
@@ -26,6 +31,9 @@ const Navbar = () => {
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
     setIsLoggedIn(true);
+    // Mettre à jour le rôle après connexion
+    const role = localStorage.getItem("role");
+    setUserRole(role);
   };
 
   return (
@@ -50,18 +58,26 @@ const Navbar = () => {
               >
                 Accueil
               </Link>
-              <Link
-                to="/reservations"
-                className="text-white hover:text-gray-200 transition"
-              >
-                Mes Réservations
-              </Link>
-              <Link
-                to="/admin"
-                className="text-white hover:text-gray-200 transition"
-              >
-                Admin
-              </Link>
+              
+              {/* Show Reservations only if logged in */}
+              {isLoggedIn && (
+                <Link
+                  to="/reservations"
+                  className="text-white hover:text-gray-200 transition"
+                >
+                  Mes Réservations
+                </Link>
+              )}
+              
+              {/* Show Admin only if role is ADMIN */}
+              {isLoggedIn && userRole === "ADMIN" && (
+                <Link
+                  to="/admin"
+                  className="text-white hover:text-gray-200 transition"
+                >
+                  Admin
+                </Link>
+              )}
 
               {/* Bouton Connexion ou Menu User */}
               {isLoggedIn ? (
@@ -99,20 +115,28 @@ const Navbar = () => {
               >
                 Accueil
               </Link>
-              <Link
-                to="/reservations"
-                className="block text-white hover:text-gray-200 transition py-2"
-                onClick={() => setIsOpen(false)}
-              >
-                Mes Réservations
-              </Link>
-              <Link
-                to="/admin"
-                className="block text-white hover:text-gray-200 transition py-2"
-                onClick={() => setIsOpen(false)}
-              >
-                Admin
-              </Link>
+              
+              {/* Show Reservations only if logged in */}
+              {isLoggedIn && (
+                <Link
+                  to="/reservations"
+                  className="block text-white hover:text-gray-200 transition py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Mes Réservations
+                </Link>
+              )}
+              
+              {/* Show Admin only if role is ADMIN */}
+              {isLoggedIn && userRole === "ADMIN" && (
+                <Link
+                  to="/admin"
+                  className="block text-white hover:text-gray-200 transition py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Admin
+                </Link>
+              )}
 
               {isLoggedIn ? (
                 <button

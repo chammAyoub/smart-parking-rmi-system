@@ -126,6 +126,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
       localStorage.setItem("token", responseData.token);
       if (!isLogin) {
         localStorage.setItem("userName", formData.firstname || "Utilisateur");
+
         console.log(
           "New user registered:",
           formData.firstname,
@@ -137,6 +138,7 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
           "userName",
           responseData.user?.firstname || "Utilisateur"
         );
+        localStorage.setItem("role", responseData.user.role);
         console.log("Utilisateur role:", responseData.user?.role);
       }
 
@@ -147,7 +149,6 @@ const LoginModal = ({ isOpen, onClose, onSuccess }) => {
       onClose();
 
       // Afficher un message de succès (tu peux utiliser ton composant Toast)
-      alert("Connexion réussie !");
     } catch (error) {
       console.error("Erreur de connexion:", error);
       setErrors({ submit: "Erreur de connexion. Veuillez réessayer." });

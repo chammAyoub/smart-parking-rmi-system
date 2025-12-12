@@ -50,6 +50,14 @@ public class ParkingController {
         return ResponseEntity.ok(resulta);
     }
 
+    // Zid had l method f ParkingController.java
+
+    @GetMapping("/{id}/spots") // <--- Hada howa l path li kan na9s
+    public ResponseEntity<List<ParkingSpotDTO>> getSpotsByParkingId(@PathVariable Long id) throws Exception {
+        // Hna kansta3mlo nafss service li déjà knti dayr f getParkingLotById
+        return ResponseEntity.ok(parkingService.getAllSpotsByParkingLot(id));
+    }
+
     @PostMapping("/reservation")
     public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO reservation) {
         ReservationDTO created = clientService.createReservation(reservation);

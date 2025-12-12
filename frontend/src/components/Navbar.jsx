@@ -1,29 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Menu, X, Car } from 'lucide-react';
-import LoginModal from './LoginModal';
-import UserMenu from './UserMenu';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Menu, X, Car } from "lucide-react";
+import LoginModal from "./LoginModal";
+import UserMenu from "./UserMenu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
 
-  // Vérifier si l'utilisateur est connecté
+  // Vérifier si l'utilisateur est connecté et son rôle
   useEffect(() => {
-    const userEmail = localStorage.getItem('userEmail');
-    setIsLoggedIn(!!userEmail);
+    const userToken = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+    setIsLoggedIn(!!userToken);
+    setUserRole(role);
   }, []);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
+    setUserRole(null);
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("role");
     // Rediriger vers l'accueil
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   const handleLoginSuccess = () => {
     setShowLoginModal(false);
     setIsLoggedIn(true);
+    // Mettre à jour le rôle après connexion
+    const role = localStorage.getItem("role");
+    setUserRole(role);
   };
 
   return (
@@ -32,28 +42,48 @@ const Navbar = () => {
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 text-white font-bold text-xl">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-white font-bold text-xl"
+            >
               <Car className="w-6 h-6" />
               <span>Smart Parking</span>
             </Link>
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-6">
-              <Link to="/" className="text-white hover:text-gray-200 transition">
+              <Link
+                to="/"
+                className="text-white hover:text-gray-200 transition"
+              >
                 Accueil
               </Link>
-              <Link to="/reservations" className="text-white hover:text-gray-200 transition">
-                Mes Réservations
-              </Link>
-              <Link to="/admin" className="text-white hover:text-gray-200 transition">
-                Admin
-              </Link>
               
+              {/* Show Reservations only if logged in */}
+              {isLoggedIn && (
+                <Link
+                  to="/reservations"
+                  className="text-white hover:text-gray-200 transition"
+                >
+                  Mes Réservations
+                </Link>
+              )}
+              
+              {/* Show Admin only if role is ADMIN */}
+              {isLoggedIn && userRole === "ADMIN" && (
+                <Link
+                  to="/admin"
+                  className="text-white hover:text-gray-200 transition"
+                >
+                  Admin
+                </Link>
+              )}
+
               {/* Bouton Connexion ou Menu User */}
               {isLoggedIn ? (
                 <UserMenu onLogout={handleLogout} />
               ) : (
-                <button 
+                <button
                   onClick={() => setShowLoginModal(true)}
                   className="bg-white text-primary px-6 py-2 rounded-full font-semibold hover:bg-gray-100 transition"
                 >
@@ -67,7 +97,11 @@ const Navbar = () => {
               onClick={() => setIsOpen(!isOpen)}
               className="md:hidden text-white"
             >
-              {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {isOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
 
@@ -81,30 +115,38 @@ const Navbar = () => {
               >
                 Accueil
               </Link>
-              <Link
-                to="/reservations"
-                className="block text-white hover:text-gray-200 transition py-2"
-                onClick={() => setIsOpen(false)}
-              >
-                Mes Réservations
-              </Link>
-              <Link
-                to="/admin"
-                className="block text-white hover:text-gray-200 transition py-2"
-                onClick={() => setIsOpen(false)}
-              >
-                Admin
-              </Link>
               
+              {/* Show Reservations only if logged in */}
+              {isLoggedIn && (
+                <Link
+                  to="/reservations"
+                  className="block text-white hover:text-gray-200 transition py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Mes Réservations
+                </Link>
+              )}
+              
+              {/* Show Admin only if role is ADMIN */}
+              {isLoggedIn && userRole === "ADMIN" && (
+                <Link
+                  to="/admin"
+                  className="block text-white hover:text-gray-200 transition py-2"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Admin
+                </Link>
+              )}
+
               {isLoggedIn ? (
-                <button 
+                <button
                   onClick={handleLogout}
                   className="w-full bg-white text-primary px-6 py-2 rounded-full font-semibold"
                 >
                   Se déconnecter
                 </button>
               ) : (
-                <button 
+                <button
                   onClick={() => {
                     setShowLoginModal(true);
                     setIsOpen(false);
@@ -120,8 +162,8 @@ const Navbar = () => {
       </nav>
 
       {/* Login Modal */}
-      <LoginModal 
-        isOpen={showLoginModal} 
+      <LoginModal
+        isOpen={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         onSuccess={handleLoginSuccess}
       />

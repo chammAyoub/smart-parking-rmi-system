@@ -29,6 +29,10 @@ public class ParkingServiceImp extends UnicastRemoteObject implements ParkingSer
     }
 
     // ==================== PARKING LOTS ====================
+    @Override
+    public ParkingLotDTO createParkingLot(ParkingLotDTO dto) throws RemoteException {
+       return parkingLotService.createParkingLot(dto);
+    }
 
     @Override
     public List<ParkingLotDTO> getAllParkingLots() throws RemoteException {
@@ -113,4 +117,6 @@ public class ParkingServiceImp extends UnicastRemoteObject implements ParkingSer
     public boolean cancelReservation(Long id) throws RemoteException {
         return reservationService.cancelReservation(id);
     }
+
+    
 }

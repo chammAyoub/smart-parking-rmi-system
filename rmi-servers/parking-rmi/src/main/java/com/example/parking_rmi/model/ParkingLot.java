@@ -1,6 +1,5 @@
 package com.example.parking_rmi.model;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
@@ -10,6 +9,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -23,9 +24,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 @ToString
 @EqualsAndHashCode
 public class ParkingLot implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -98,7 +99,7 @@ public class ParkingLot implements Serializable {
     @Builder.Default
     private String closingTime = "23:59";
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
@@ -108,23 +109,14 @@ public class ParkingLot implements Serializable {
     // RELATIONS
     // ============================================
 
-    @OneToMany(
-        mappedBy = "parkingLot",
-        cascade = CascadeType.ALL,
-        orphanRemoval = true,
-        fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @JsonIgnore
     private List<ParkingSpot> spots = new ArrayList<>();
 
-    @OneToMany(
-        mappedBy = "parkingLot",
-        cascade = CascadeType.ALL,
-        fetch = FetchType.LAZY
-    )
+    @OneToMany(mappedBy = "parkingLot", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
@@ -134,6 +126,16 @@ public class ParkingLot implements Serializable {
     // ============================================
     // LIFECYCLE CALLBACKS
     // ============================================
+    @PrePersist
+    protected void onCreate() {
+        // This runs automatically right before the INSERT SQL is generated
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+        if (this.updatedAt == null) {
+            this.updatedAt = LocalDateTime.now();
+        }
+    }
 
     // ============================================
     // BUSINESS METHODS
@@ -142,7 +144,7 @@ public class ParkingLot implements Serializable {
     public void decrementAvailableSpots() {
         if (availableSpots > 0) {
             availableSpots--;
-            
+
             if (availableSpots == 0) {
                 status = ParkingStatus.FULL;
             }
@@ -152,7 +154,7 @@ public class ParkingLot implements Serializable {
     public void incrementAvailableSpots() {
         if (availableSpots < totalSpots) {
             availableSpots++;
-            
+
             if (status == ParkingStatus.FULL && availableSpots > 0) {
                 status = ParkingStatus.ACTIVE;
             }

@@ -22,7 +22,7 @@ public interface ParkingService extends Remote {
     public List<ParkingLotDTO> getAllParkingLots() throws RemoteException;
     public ParkingLotDTO getParkingLotById(Long id) throws RemoteException;
     public List<ParkingLotDTO> getActiveParkingLots() throws RemoteException;
-
+    public ParkingLotDTO createParkingLot(ParkingLotDTO parkingLotDTO)throws RemoteException;
     // Spot Operations
     public List<ParkingSpotDTO> getAllSpotsByParkingLot(Long parkingLotId) throws RemoteException;
     public List<ParkingSpotDTO> getAvailableSpots(Long parkingLotId) throws RemoteException;

@@ -9,6 +9,8 @@ import com.example.parking_rmi.dto.ReservationDTO;
 
 public interface ParkingService extends Remote {
 
+    public ParkingLotDTO createParkingLot(ParkingLotDTO parkingLotDTO) throws RemoteException;
+
     public int getAvailableSpotsCount(Long parkingLotId) throws RemoteException;
 
     public int getTotalAvailableSpots() throws RemoteException;

@@ -48,7 +48,6 @@ public class Reservation implements Serializable {
     private String userPhone;
 
     @NotBlank(message = "L'immatriculation du véhicule est requise")
-    @Pattern(regexp = "^\\d{1,6}-[A-Z]{1,2}-\\d{1,2}$", message = "Format d'immatriculation invalide (ex: 12345-A-67)")
     @Column(name = "license_plate", nullable = false, length = 20)
     private String licensePlate;
 

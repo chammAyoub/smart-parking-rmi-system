@@ -49,12 +49,10 @@ public class ParkingSpot implements Serializable {
     @Builder.Default
     private SpotType spotType = SpotType.STANDARD;
 
-    @Min(value = 0, message = "Le numéro d'étage ne peut pas être négatif")
     @Column(name = "floor_number")
     @Builder.Default
     private Integer floorNumber = 0;
 
-    @Size(max = 10, message = "La section ne peut pas dépasser 10 caractères")
     @Column(name = "section", length = 10)
     private String section;
 

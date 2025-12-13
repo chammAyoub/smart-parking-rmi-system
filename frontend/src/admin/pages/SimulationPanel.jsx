@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { getAllParkingLots, getParkingSpots } from "../../services/apiService";
+import {
+  getAllParkingLots,
+  getParkingSpots,
+  getParkingById,
+} from "../../services/apiService";
 import { simulateCarEnter, simulateCarExit } from "../services/adminService";
 import { Car } from "lucide-react";
 import ParkingGridAdmin from "../components/ParkingGridAdmin";
@@ -13,49 +17,17 @@ const SimulationPanel = () => {
     getAllParkingLots().then(setParkings);
   }, []);
 
-  // useEffect(() => {
-  //   setParkings([
-  //     { id: 1, name: "Agdal", totalSpots: 20 },
-  //     { id: 2, name: "Hassan", totalSpots: 20 },
-  //     { id: 3, name: "Océan", totalSpots: 20 },
-  //   ]);
-  // }, []);
-
   useEffect(() => {
     if (selectedParking) {
-      const fetchSpots = () => getParkingSpots(selectedParking).then(setSpots);
+      const fetchSpots = async () => {
+        const parkingData = await getParkingById(selectedParking);
+        setSpots(parkingData.spots);
+        console.log(parkingData);
+      };
+
       fetchSpots();
-      const interval = setInterval(fetchSpots, 2000);
-      return () => clearInterval(interval);
     }
   }, [selectedParking]);
-
-  // useEffect(() => {
-  //   if (selectedParking) {
-  //     setSpots([
-  //       { id: 1, spotNumber: "A1", status: "available" },
-  //       { id: 2, spotNumber: "A2", status: "occupied" },
-  //       { id: 3, spotNumber: "A3", status: "reserved" },
-  //       { id: 4, spotNumber: "A4", status: "available" },
-  //       { id: 5, spotNumber: "A5", status: "occupied" },
-  //       { id: 6, spotNumber: "B1", status: "available" },
-  //       { id: 7, spotNumber: "B2", status: "occupied" },
-  //       { id: 8, spotNumber: "B3", status: "available" },
-  //       { id: 9, spotNumber: "B4", status: "reserved" },
-  //       { id: 10, spotNumber: "B5", status: "occupied" },
-  //       { id: 11, spotNumber: "C1", status: "available" },
-  //       { id: 12, spotNumber: "C2", status: "occupied" },
-  //       { id: 13, spotNumber: "C3", status: "available" },
-  //       { id: 14, spotNumber: "C4", status: "reserved" },
-  //       { id: 15, spotNumber: "C5", status: "available" },
-  //       { id: 16, spotNumber: "D1", status: "occupied" },
-  //       { id: 17, spotNumber: "D2", status: "available" },
-  //       { id: 18, spotNumber: "D3", status: "occupied" },
-  //       { id: 19, spotNumber: "D4", status: "available" },
-  //       { id: 20, spotNumber: "D5", status: "reserved" },
-  //     ]);
-  //   }
-  // }, [selectedParking]);
 
   const handleAction = async (spot, action) => {
     try {

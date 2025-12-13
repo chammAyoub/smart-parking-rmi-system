@@ -49,6 +49,7 @@ public class ParkingController {
         }
         return ResponseEntity.ok(resulta);
     }
+    
 
     // Zid had l method f ParkingController.java
 

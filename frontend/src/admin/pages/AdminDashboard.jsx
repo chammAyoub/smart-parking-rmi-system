@@ -20,8 +20,6 @@ const AdminDashboard = () => {
     const fetchStats = () =>
       getAdminStats().then(setStats).catch(console.error);
     fetchStats();
-    const interval = setInterval(fetchStats, 5000);
-    return () => clearInterval(interval);
   }, []);
 
   // useEffect(() => {

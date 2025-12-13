@@ -50,7 +50,7 @@ export const TOAST_TYPES = {
 export const ENDPOINTS = {
   PARKING_LOTS: "/parking/lots",
   PARKING_BY_ID: (id) => `/parking/${id}`,
-  PARKING_SPOTS: (id) => `/parking/${id}/spots/available`,
+  PARKING_SPOTS: (id) => `/parking/${id}/spots`,
   RESERVATIONS: "/reservations",
   RESERVATION_BY_ID: (id) => `/reservations/${id}`,
   USER_RESERVATIONS: (email) => `/reservations/user/${email}`,

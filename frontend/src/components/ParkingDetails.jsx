@@ -16,7 +16,6 @@ const ParkingDetails = ({ parking, onClose, onReserve }) => {
         
         const data = await getParkingSpots(parking.id);
         
-        // 🔍 Hna fin kayn l mochkil: chof l console chno tat3tik
         console.log("📦 Spots Data received:", data); 
 
         // Ila kan data array direct:

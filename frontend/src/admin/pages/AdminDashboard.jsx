@@ -5,6 +5,10 @@ import SimulationPanel from "./SimulationPanel";
 import { getAdminStats } from "../services/adminService";
 
 const AdminDashboard = () => {
+  const role = localStorage.getItem("role");
+  if (role !== "ADMIN") {
+    window.location.href = "/";
+  }
   const [activeTab, setActiveTab] = useState("simulation");
   const [stats, setStats] = useState({
     totalSpots: 0,
@@ -12,23 +16,22 @@ const AdminDashboard = () => {
     occupancyRate: 0,
   });
 
-  //   useEffect(() => {
-  //     const fetchStats = () => getAdminStats()
-  //       .then(setStats)
-  //       .catch(console.error);
-  //     fetchStats();
-  //     const interval = setInterval(fetchStats, 5000);
-  //     return () => clearInterval(interval);
-  //   }, []);
-
   useEffect(() => {
-    setStats({
-      totalSpots: 60,
-      availableSpots: 27,
-      occupiedSpots: 33,
-      occupancyRate: 55,
-    });
+    const fetchStats = () =>
+      getAdminStats().then(setStats).catch(console.error);
+    fetchStats();
+    const interval = setInterval(fetchStats, 5000);
+    return () => clearInterval(interval);
   }, []);
+
+  // useEffect(() => {
+  //   setStats({
+  //     totalSpots: 60,
+  //     availableSpots: 27,
+  //     occupiedSpots: 33,
+  //     occupancyRate: 55,
+  //   });
+  // }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

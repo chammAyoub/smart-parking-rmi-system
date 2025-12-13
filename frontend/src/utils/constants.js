@@ -6,7 +6,6 @@ export const PARKING_STATUS = {
   AVAILABLE: "AVAILABLE", // Backend uses Uppercase Enums
   OCCUPIED: "OCCUPIED",
   RESERVED: "RESERVED",
-  MAINTENANCE: "MAINTENANCE",
 };
 
 // Status Colors
@@ -14,7 +13,6 @@ export const STATUS_COLORS = {
   [PARKING_STATUS.AVAILABLE]: "#10b981", // green-500
   [PARKING_STATUS.OCCUPIED]: "#ef4444", // red-500
   [PARKING_STATUS.RESERVED]: "#f59e0b", // yellow-500
-  [PARKING_STATUS.MAINTENANCE]: "#6b7280",
 };
 
 // Map Configuration (Rabat, Morocco)
@@ -52,7 +50,7 @@ export const TOAST_TYPES = {
 export const ENDPOINTS = {
   PARKING_LOTS: "/parking/lots",
   PARKING_BY_ID: (id) => `/parking/${id}`,
-  PARKING_SPOTS: (id) => `/parking/${id}/spots`,
+  PARKING_SPOTS: (id) => `/parking/${id}/spots/available`,
   RESERVATIONS: "/reservations",
   RESERVATION_BY_ID: (id) => `/reservations/${id}`,
   USER_RESERVATIONS: (email) => `/reservations/user/${email}`,

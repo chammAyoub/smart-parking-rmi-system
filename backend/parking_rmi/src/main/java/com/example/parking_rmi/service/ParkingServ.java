@@ -52,5 +52,23 @@ public class ParkingServ {
     }
 
     
-    // ... Implement wrappers for other methods as needed ...
+    //Cancel
+    public boolean cancelReservation(Long id) {
+        try {
+            return parkingService.cancelReservation(id);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    //Get By Email
+    public List<ReservationDTO> getReservationsByUserEmail(String email) {
+    try {
+        // Hna kan3iyto l RMI Server
+        return parkingService.getReservationsByUserEmail(email);
+    } catch (Exception e) {         e.printStackTrace();
+        return new ArrayList<>(); // Rjje3 list khawya ila kan mochkil
+    }
+}
 }

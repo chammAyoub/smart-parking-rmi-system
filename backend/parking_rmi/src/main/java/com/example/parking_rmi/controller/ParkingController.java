@@ -59,10 +59,5 @@ public class ParkingController {
         return ResponseEntity.ok(parkingService.getAllSpotsByParkingLot(id));
     }
 
-    @PostMapping("/reservation")
-    public ResponseEntity<ReservationDTO> createReservation(@RequestBody ReservationDTO reservation) {
-        ReservationDTO created = clientService.createReservation(reservation);
-        if (created == null) return ResponseEntity.badRequest().build();
-        return ResponseEntity.ok(created);
-    }
+    
 }

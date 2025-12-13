@@ -31,52 +31,39 @@ public class ParkingLot implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Le nom du parking est requis")
-    @Size(min = 3, max = 100, message = "Le nom doit contenir entre 3 et 100 caractères")
+
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 
-    @NotBlank(message = "L'adresse est requise")
-    @Size(max = 255, message = "L'adresse ne peut pas dépasser 255 caractères")
+
     @Column(nullable = false)
     private String address;
 
-    @NotBlank(message = "La ville est requise")
-    @Size(max = 100)
+
     @Column(nullable = false, length = 100)
     private String city;
 
-    @NotNull(message = "La latitude est requise")
-    @DecimalMin(value = "-90.0", message = "La latitude doit être >= -90")
-    @DecimalMax(value = "90.0", message = "La latitude doit être <= 90")
+ 
     @Column(nullable = false, precision = 10, scale = 8)
     private BigDecimal latitude;
 
-    @NotNull(message = "La longitude est requise")
-    @DecimalMin(value = "-180.0", message = "La longitude doit être >= -180")
-    @DecimalMax(value = "180.0", message = "La longitude doit être <= 180")
     @Column(nullable = false, precision = 11, scale = 8)
     private BigDecimal longitude;
 
-    @Min(value = 1, message = "Le nombre total de places doit être au moins 1")
-    @Max(value = 1000, message = "Le nombre total de places ne peut pas dépasser 1000")
+
     @Column(name = "total_spots", nullable = false)
     private Integer totalSpots;
 
-    @Min(value = 0, message = "Le nombre de places disponibles ne peut pas être négatif")
     @Column(name = "available_spots", nullable = false)
     private Integer availableSpots;
 
-    @NotBlank(message = "L'hôte RMI est requis")
     @Column(name = "rmi_host", nullable = false, length = 50)
     private String rmiHost;
 
-    @Min(value = 1024, message = "Le port RMI doit être >= 1024")
-    @Max(value = 65535, message = "Le port RMI doit être <= 65535")
+
     @Column(name = "rmi_port", nullable = false)
     private Integer rmiPort;
 
-    @NotBlank(message = "Le nom du service RMI est requis")
     @Column(name = "rmi_service_name", nullable = false, unique = true, length = 100)
     private String rmiServiceName;
 
@@ -86,7 +73,6 @@ public class ParkingLot implements Serializable {
     private ParkingStatus status = ParkingStatus.ACTIVE;
 
     // ✅ FIX: Changed from Double to BigDecimal
-    @DecimalMin(value = "0.0", message = "Le tarif horaire doit être >= 0")
     @Column(name = "hourly_rate", nullable = false, precision = 10, scale = 2)
     @Builder.Default
     private BigDecimal hourlyRate = new BigDecimal("10.00");

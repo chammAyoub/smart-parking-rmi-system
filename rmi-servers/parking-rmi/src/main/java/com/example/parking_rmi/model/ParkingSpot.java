@@ -34,8 +34,6 @@ public class ParkingSpot implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Le numéro de place est requis")
-    @Size(min = 1, max = 10, message = "Le numéro de place doit contenir entre 1 et 10 caractères")
     @Column(name = "spot_number", nullable = false, length = 10)
     private String spotNumber;
 

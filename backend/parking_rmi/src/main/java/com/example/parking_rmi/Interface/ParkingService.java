@@ -41,4 +41,8 @@ public interface ParkingService extends Remote {
 
     public List<ReservationDTO> getReservationDTOsByParkingLot(long id) throws RemoteException;
 
+    public boolean simulateCarExit(long spotId) throws RemoteException;
+
+    public boolean simulateCarEntry(long spotId) throws RemoteException;
+
 }

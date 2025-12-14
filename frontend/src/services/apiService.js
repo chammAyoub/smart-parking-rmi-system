@@ -130,5 +130,11 @@ export const registerUser = async (credentials) => {
   return response.data;
 };
 
+// Add parking 
+export const addParking = async (parkingData) => {
+  const response = await publicApi.post(ENDPOINTS.ADD_PARKING, parkingData);
+  return response.data;
+};
+
 // Par défaut on export l'instance privée
 export default api;

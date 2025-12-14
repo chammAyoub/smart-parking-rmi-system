@@ -137,15 +137,16 @@ export const addParking = async (parkingData) => {
 };
 
 // simulate enter 
+
 export const simulateCarEnter = async (id) => {
-  const response = await api.post(ENDPOINTS.ENTER_SIMULATION, id);
+  const response = await api.post(ENDPOINTS.ENTER_SIMULATION(id));
   return response.data;
 };
 
 
 // simulate exit 
 export const simulateCarExit = async (id) => {
-  const response = await api.post(ENDPOINTS.EXIT_SIMULATION, id);
+  const response = await api.post(ENDPOINTS.EXIT_SIMULATION(id));
   return response.data;
 };
 

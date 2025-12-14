@@ -4,7 +4,7 @@ import {
   getParkingSpots,
   getParkingById,
 } from "../../services/apiService";
-import { simulateCarEnter, simulateCarExit } from "../services/adminService";
+import { simulateCarEnter, simulateCarExit } from "../../services/apiService";
 import { Car } from "lucide-react";
 import ParkingGridAdmin from "../components/ParkingGridAdmin";
 
@@ -21,8 +21,12 @@ const SimulationPanel = () => {
     if (selectedParking) {
       const fetchSpots = async () => {
         const parkingData = await getParkingById(selectedParking);
+        
+        
         setSpots(parkingData.spots);
-        console.log(parkingData);
+        
+        
+        
       };
 
       fetchSpots();
@@ -30,11 +34,16 @@ const SimulationPanel = () => {
   }, [selectedParking]);
 
   const handleAction = async (spot, action) => {
+    const spotId = spot.id;
+    console.log(spotId);
+    
+    
     try {
-      if (action === "enter") await simulateCarEnter(spot.id);
-      else await simulateCarExit(spot.id);
+      if (action === "enter") await simulateCarEnter(spotId);
+      else await simulateCarExit(spotId);
       const updatedData = await getParkingSpots(selectedParking);
       setSpots(updatedData);
+      
     } catch (err) {
       alert("Erreur simulation: " + err.message);
     }

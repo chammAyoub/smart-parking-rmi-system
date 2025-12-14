@@ -58,6 +58,6 @@ export const ENDPOINTS = {
   AUTHENTIFICATION: "/auth/authenticate",
   REGISTER: "/auth/register",
   ADD_PARKING: "/admin/addParking",
-  ENTER_SIMULATION : "/simulate/enter/{spotId}",
-  EXIT_SIMULATION : "/simulate/exit/{spotId}",
+  ENTER_SIMULATION : (id) => `/admin/simulate/enter/${id}`,
+  EXIT_SIMULATION : (id) => `/admin/simulate/exit/${id}`,
 };

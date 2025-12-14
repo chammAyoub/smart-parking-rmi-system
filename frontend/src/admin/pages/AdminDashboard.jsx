@@ -55,10 +55,9 @@ const CreateParkingModal = ({ isOpen, onClose, onSuccess }) => {
       
 
       const response = await addParking(payload)
-      console.log(response.ok);
       
 
-      if (response.ok) {
+      if (!response.ok) {
         alert('✅ Parking lot created successfully!');
         setFormData({
           name: '', address: '', city: '', latitude: '', longitude: '',

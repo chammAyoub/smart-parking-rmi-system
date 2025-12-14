@@ -3,6 +3,8 @@ import { LogIn, LogOut } from "lucide-react";
 import "../styles/AdminPanel.css";
 
 const ParkingGridAdmin = ({ spots, onAction }) => {
+  console.log(spots);
+  
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {spots.map((spot) => (

@@ -21,7 +21,8 @@ public class ParkingServiceImp extends UnicastRemoteObject implements ParkingSer
     private final ReservationService reservationService;
 
     // Constructor Injection of Services
-    public ParkingServiceImp(ParkingLotService s1, ParkingSpotService s2, ReservationService s3) throws RemoteException {
+    public ParkingServiceImp(ParkingLotService s1, ParkingSpotService s2, ReservationService s3)
+            throws RemoteException {
         super();
         this.parkingLotService = s1;
         this.parkingSpotService = s2;
@@ -31,7 +32,7 @@ public class ParkingServiceImp extends UnicastRemoteObject implements ParkingSer
     // ==================== PARKING LOTS ====================
     @Override
     public ParkingLotDTO createParkingLot(ParkingLotDTO dto) throws RemoteException {
-       return parkingLotService.createParkingLot(dto);
+        return parkingLotService.createParkingLot(dto);
     }
 
     @Override
@@ -55,6 +56,16 @@ public class ParkingServiceImp extends UnicastRemoteObject implements ParkingSer
     }
 
     // ==================== SPOTS ====================
+
+    @Override
+    public boolean simulateCarExit(long spotId) throws RemoteException {
+        return parkingSpotService.simulateCarExit(spotId);
+    }
+
+    @Override
+    public boolean simulateCarEntry(long spotId) throws RemoteException {
+        return parkingSpotService.simulateCarEntry(spotId);
+    }
 
     @Override
     public List<ParkingSpotDTO> getAllSpotsByParkingLot(Long parkingLotId) throws RemoteException {
@@ -118,5 +129,4 @@ public class ParkingServiceImp extends UnicastRemoteObject implements ParkingSer
         return reservationService.cancelReservation(id);
     }
 
-    
 }

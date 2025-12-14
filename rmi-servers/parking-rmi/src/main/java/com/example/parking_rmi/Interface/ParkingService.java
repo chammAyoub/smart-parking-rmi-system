@@ -28,6 +28,8 @@ public interface ParkingService extends Remote {
     public List<ParkingSpotDTO> getAvailableSpots(Long parkingLotId) throws RemoteException;
     public ParkingSpotDTO getSpotById(Long spotId) throws RemoteException;
     public boolean updateSpotStatus(Long spotId, String status) throws RemoteException;
+    public boolean simulateCarExit(long spotId)throws RemoteException;
+    public boolean simulateCarEntry(long spotId)throws RemoteException;
 
     // Reservation Operations
     public ReservationDTO createReservation(ReservationDTO reservationDTO) throws RemoteException;

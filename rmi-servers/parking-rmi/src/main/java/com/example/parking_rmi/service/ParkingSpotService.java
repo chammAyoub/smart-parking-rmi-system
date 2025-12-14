@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,7 +43,8 @@ public class ParkingSpotService {
     @Transactional
     public boolean updateSpotStatus(Long spotId, String statusStr) {
         ParkingSpot spot = parkingSpotRepository.findById(spotId).orElse(null);
-        if (spot == null) return false;
+        if (spot == null)
+            return false;
 
         try {
             SpotStatus newStatus = SpotStatus.valueOf(statusStr);
@@ -73,7 +75,8 @@ public class ParkingSpotService {
     @Transactional(readOnly = true)
     public double getOccupancyRate(Long parkingLotId) {
         ParkingLot lot = parkingLotRepository.findById(parkingLotId).orElse(null);
-        if (lot == null || lot.getTotalSpots() == 0) return 0.0;
+        if (lot == null || lot.getTotalSpots() == 0)
+            return 0.0;
 
         int available = getAvailableSpotsCount(parkingLotId);
         return ((double) (lot.getTotalSpots() - available) / lot.getTotalSpots()) * 100.0;
@@ -88,9 +91,55 @@ public class ParkingSpotService {
         d.setFloorNumber(e.getFloorNumber());
         d.setSection(e.getSection());
         d.setIsAccessible(e.getIsAccessible());
-        if(e.getParkingLot() != null) {
+        if (e.getParkingLot() != null) {
             d.setParkingLotId(e.getParkingLot().getId());
         }
         return d;
+    }
+
+    @Transactional
+    public boolean simulateCarEntry(Long spotId) {
+        ParkingSpot spot = parkingSpotRepository.findById(spotId)
+                .orElseThrow(() -> new RuntimeException("Spot not found"));
+
+        if (spot.getStatus() == SpotStatus.OCCUPIED) {
+            return false;
+        }
+
+
+        if (spot.getStatus() == SpotStatus.AVAILABLE) {
+            ParkingLot lot = spot.getParkingLot();
+            if (lot.getAvailableSpots() > 0) {
+                lot.setAvailableSpots(lot.getAvailableSpots() - 1);
+                parkingLotRepository.save(lot);
+            }
+        }
+
+        spot.setStatus(SpotStatus.OCCUPIED);
+        spot.setLastOccupiedAt(LocalDateTime.now()); 
+        parkingSpotRepository.save(spot);
+        return true;
+    }
+
+    // 🚪 CAR EXIT SIMULATION
+    @Transactional
+    public boolean simulateCarExit(Long spotId) {
+        ParkingSpot spot = parkingSpotRepository.findById(spotId)
+                .orElseThrow(() -> new RuntimeException("Spot not found"));
+
+        if (spot.getStatus() == SpotStatus.AVAILABLE) {
+            return false;
+        }
+
+        // Free up the spot
+        spot.setStatus(SpotStatus.AVAILABLE);
+        parkingSpotRepository.save(spot);
+
+        ParkingLot lot = spot.getParkingLot();
+        if (lot.getAvailableSpots() < lot.getTotalSpots()) {
+            lot.setAvailableSpots(lot.getAvailableSpots() + 1);
+            parkingLotRepository.save(lot);
+        }
+        return true;
     }
 }

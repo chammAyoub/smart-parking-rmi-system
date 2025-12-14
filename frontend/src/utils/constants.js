@@ -57,4 +57,7 @@ export const ENDPOINTS = {
   CANCEL_RESERVATION: (id) => `/reservations/${id}`,
   AUTHENTIFICATION: "/auth/authenticate",
   REGISTER: "/auth/register",
+  ADD_PARKING: "/admin/addParking",
+  ENTER_SIMULATION : "/simulate/enter/{spotId}",
+  EXIT_SIMULATION : "/simulate/exit/{spotId}",
 };

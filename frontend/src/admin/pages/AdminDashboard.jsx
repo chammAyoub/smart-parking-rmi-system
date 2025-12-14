@@ -16,10 +16,10 @@ const CreateParkingModal = ({ isOpen, onClose, onSuccess }) => {
     totalSpots: '',
     hourlyRate: '',
     openingTime: '08:00',
-    closingTime: '23:59'
-    // rmiHost: 'localhost',
-    // rmiPort: '1099',
-    // rmiServiceName: ''
+    closingTime: '23:59',
+    rmiHost: 'localhost',
+    rmiPort: '1099',
+    rmiServiceName: ''
   });
 
   const handleChange = (e) => {
@@ -46,15 +46,17 @@ const CreateParkingModal = ({ isOpen, onClose, onSuccess }) => {
         totalSpots: parseInt(formData.totalSpots),
         hourlyRate: parseFloat(formData.hourlyRate),
         openingTime: formData.openingTime,
-        closingTime: formData.closingTime
-        // rmiHost: formData.rmiHost,
-        // rmiPort: parseInt(formData.rmiPort),
-        // rmiServiceName: formData.rmiServiceName
+        closingTime: formData.closingTime,
+        rmiHost: formData.rmiHost,
+        rmiPort: parseInt(formData.rmiPort),
+        rmiServiceName: formData.rmiServiceName
       };
-      console.log(payload);
+      
       
 
       const response = await addParking(payload)
+      console.log(response.ok);
+      
 
       if (response.ok) {
         alert('✅ Parking lot created successfully!');

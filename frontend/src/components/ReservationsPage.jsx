@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Car, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Car, Trash2, AlertCircle } from 'lucide-react';
 import { getUserReservations, cancelReservation } from '../services/apiService';
+import { useNavigate } from 'react-router-dom'; // ✅ Import useNavigate
 import LoadingSpinner from './LoadingSpinner';
 import Toast from './Toast';
 
@@ -9,16 +10,24 @@ const ReservationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   
-  // Simulation: On utilise un email fixe pour l'instant (à remplacer par login)
-  const userEmail = "Chamm.Ayoub@gmail.com";
+  const navigate = useNavigate();
+
+  // ✅ 1. Njibo Email mn LocalStorage (Machi Hardcoded)
+  const userEmail = localStorage.getItem('userEmail');
 
   useEffect(() => {
+    // ✅ 2. Vérification: Ila makanch email (user machi connecté), rj3o l login/home
+    if (!userEmail) {
+        setLoading(false);
+        return; // Matkemmlch fetch
+    }
     fetchReservations();
-  }, []);
+  }, [userEmail]); // Refetch ila tbeddel user
 
   const fetchReservations = async () => {
     try {
       setLoading(true);
+      // ✅ 3. N-sifto l-email dynamique
       const data = await getUserReservations(userEmail);
       setReservations(data);
     } catch (error) {
@@ -33,13 +42,29 @@ const ReservationsPage = () => {
     try {
       await cancelReservation(id);
       setToast({ message: "Réservation annulée.", type: "success" });
-      fetchReservations();
+      fetchReservations(); // Refresh list
     } catch (error) {
       setToast({ message: "Erreur lors de l'annulation.", type: "error" });
     }
   };
 
   if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
+
+  // ✅ 4. Gestion cas Non Connecté
+  if (!userEmail) {
+      return (
+        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+            <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-md">
+                <AlertCircle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">Accès refusé</h2>
+                <p className="text-gray-600 mb-6">Vous devez être connecté pour voir vos réservations.</p>
+                <button onClick={() => navigate('/')} className="bg-primary text-white px-6 py-3 rounded-lg hover:bg-secondary transition">
+                    Retour à l'accueil
+                </button>
+            </div>
+        </div>
+      );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">

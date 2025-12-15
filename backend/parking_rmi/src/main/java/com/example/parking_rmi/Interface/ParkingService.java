@@ -6,6 +6,8 @@ import java.util.List;
 import com.example.parking_rmi.dto.ParkingLotDTO;
 import com.example.parking_rmi.dto.ParkingSpotDTO;
 import com.example.parking_rmi.dto.ReservationDTO;
+import com.example.parking_rmi.model.ParkingSpot;
+import com.example.parking_rmi.model.ParkingSpot.SpotStatus;
 
 public interface ParkingService extends Remote {
 
@@ -45,4 +47,13 @@ public interface ParkingService extends Remote {
 
     public boolean simulateCarEntry(long spotId) throws RemoteException;
 
+    List<ParkingSpotDTO> findByStatus(SpotStatus status);
+
+    List<ParkingSpotDTO> findByParkingLotIdAndStatus(Long parkingLotId, SpotStatus status);
+
+    Long countAvailableSpots(Long parkingLotId);
+
+    Long countOccupiedSpots(Long parkingLotId);
+
+    Double getTotalRevenueByParkingLotId(Long parkingLotId);
 }

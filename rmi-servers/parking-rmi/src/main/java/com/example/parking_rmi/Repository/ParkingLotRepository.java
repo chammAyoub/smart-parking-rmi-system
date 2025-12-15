@@ -29,7 +29,7 @@ public interface ParkingLotRepository extends JpaRepository<ParkingLot, Long> {
 
     Optional<ParkingLot> findByRmiServiceName(String rmiServiceName);
 
-    List<ParkingLot> findByStatus(ParkingStatus status);
+    List<ParkingLot> findByStatus(ParkingStatus status);//1
 
     @Query("SELECT p FROM ParkingLot p WHERE p.status = 'ACTIVE'")
     List<ParkingLot> findAllActive();

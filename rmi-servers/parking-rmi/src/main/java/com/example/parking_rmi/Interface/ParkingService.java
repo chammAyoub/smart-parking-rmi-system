@@ -9,6 +9,7 @@ import com.example.parking_rmi.dto.ParkingSpotDTO;
 import com.example.parking_rmi.dto.ReservationDTO;
 import com.example.parking_rmi.model.ParkingLot;
 import com.example.parking_rmi.model.ParkingSpot;
+import com.example.parking_rmi.model.ParkingSpot.SpotStatus;
 import com.example.parking_rmi.model.Reservation;
 
 public interface ParkingService extends Remote {
@@ -37,5 +38,10 @@ public interface ParkingService extends Remote {
     public List<ReservationDTO> getReservationsByUserEmail(String email) throws RemoteException;
     public boolean cancelReservation(Long id) throws RemoteException;
     public List<ReservationDTO> getReservationDTOsByParkingLot(long id) throws RemoteException;
-
+    //statistique
+    List<ParkingSpotDTO> findByStatus(SpotStatus status)throws RemoteException;
+    List<ParkingSpotDTO> findByParkingLotIdAndStatus(Long parkingLotId, SpotStatus status)throws RemoteException;
+    Long countAvailableSpots(Long parkingLotId)throws RemoteException;
+    Long countOccupiedSpots(Long parkingLotId)throws RemoteException;
+    Double getTotalRevenueByParkingLotId(Long parkingLotId)throws RemoteException;
 }

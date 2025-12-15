@@ -28,9 +28,9 @@ public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long> 
     @Query("SELECT s FROM ParkingSpot s WHERE s.parkingLot.id = :parkingLotId AND s.status = 'AVAILABLE'")
     List<ParkingSpot> findAvailableSpotsByParkingLotId(@Param("parkingLotId") Long parkingLotId);
 
-    List<ParkingSpot> findByStatus(SpotStatus status);
+    List<ParkingSpot> findByStatus(SpotStatus status);//1
 
-    List<ParkingSpot> findByParkingLotIdAndStatus(Long parkingLotId, SpotStatus status);
+    List<ParkingSpot> findByParkingLotIdAndStatus(Long parkingLotId, SpotStatus status);//2
 
     List<ParkingSpot> findBySpotType(SpotType spotType);
 
@@ -46,10 +46,10 @@ public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long> 
 
     // ✅ This is the method used by your Service implementation
     @Query("SELECT COUNT(s) FROM ParkingSpot s WHERE s.parkingLot.id = :parkingLotId AND s.status = 'AVAILABLE'")
-    Long countAvailableSpots(@Param("parkingLotId") Long parkingLotId);
+    Long countAvailableSpots(@Param("parkingLotId") Long parkingLotId);//3
 
     @Query("SELECT COUNT(s) FROM ParkingSpot s WHERE s.parkingLot.id = :parkingLotId AND s.status = 'OCCUPIED'")
-    Long countOccupiedSpots(@Param("parkingLotId") Long parkingLotId);
+    Long countOccupiedSpots(@Param("parkingLotId") Long parkingLotId);//4
 
     @Query("SELECT COUNT(s) FROM ParkingSpot s WHERE s.parkingLot.id = :parkingLotId AND s.status = 'RESERVED'")
     Long countReservedSpots(@Param("parkingLotId") Long parkingLotId);

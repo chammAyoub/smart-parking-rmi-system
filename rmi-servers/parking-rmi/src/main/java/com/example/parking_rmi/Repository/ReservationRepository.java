@@ -73,7 +73,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Query("SELECT SUM(r.totalAmount) FROM Reservation r " +
            "WHERE r.parkingLot.id = :parkingLotId " +
            "AND r.status = 'COMPLETED'")
-    Double getTotalRevenueByParkingLotId(@Param("parkingLotId") Long parkingLotId);
+    Double getTotalRevenueByParkingLotId(@Param("parkingLotId") Long parkingLotId);//1
 
     @Query("SELECT SUM(r.totalAmount) FROM Reservation r " +
            "WHERE r.status = 'COMPLETED' " +

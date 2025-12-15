@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +21,29 @@ public class ParkingSpotService {
 
     private final ParkingSpotRepository parkingSpotRepository;
     private final ParkingLotRepository parkingLotRepository;
+
+    @Transactional(readOnly = true)
+    public List<ParkingSpotDTO> findByStatus(SpotStatus status) {
+        return parkingSpotRepository.findByStatus(status).stream()
+                .map(this::mapToSpotDTO).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ParkingSpotDTO> findByParkingLotIdAndStatus(Long parkingLotId, SpotStatus status) {
+        return parkingSpotRepository.findByParkingLotIdAndStatus(parkingLotId, status).stream()
+            .map(this::mapToSpotDTO).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Long countAvailableSpots(Long parkingLotId) {
+        return parkingSpotRepository.countAvailableSpots(parkingLotId);
+    }
+
+    @Transactional(readOnly = true)
+    public Long countOccupiedSpots(Long parkingLotId) {
+        return parkingSpotRepository.countOccupiedSpots(parkingLotId);
+    }
+    
 
     @Transactional(readOnly = true)
     public List<ParkingSpotDTO> getAllSpotsByParkingLot(Long parkingLotId) {

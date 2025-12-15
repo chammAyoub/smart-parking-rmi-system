@@ -2,6 +2,8 @@ package com.example.parking_rmi.impliment;
 
 import com.example.parking_rmi.Interface.ParkingService;
 import com.example.parking_rmi.dto.*;
+import com.example.parking_rmi.model.ParkingSpot;
+import com.example.parking_rmi.model.ParkingSpot.SpotStatus;
 import com.example.parking_rmi.service.ParkingLotService;
 import com.example.parking_rmi.service.ParkingSpotService;
 import com.example.parking_rmi.service.ReservationService;
@@ -127,6 +129,32 @@ public class ParkingServiceImp extends UnicastRemoteObject implements ParkingSer
     @Override
     public boolean cancelReservation(Long id) throws RemoteException {
         return reservationService.cancelReservation(id);
+    }
+
+    @Override
+    public List<ParkingSpotDTO> findByStatus(SpotStatus status)throws RemoteException {
+        // TODO Auto-generated method stub
+        return parkingSpotService.findByStatus(status);
+    }
+
+    @Override
+    public List<ParkingSpotDTO> findByParkingLotIdAndStatus(Long parkingLotId, SpotStatus status)throws RemoteException {
+        return parkingSpotService.findByParkingLotIdAndStatus(parkingLotId, status);
+    }
+
+    @Override
+    public Long countAvailableSpots(Long parkingLotId)throws RemoteException {
+        return parkingSpotService.countAvailableSpots(parkingLotId);
+    }
+
+    @Override
+    public Long countOccupiedSpots(Long parkingLotId)throws RemoteException {
+       return parkingSpotService.countOccupiedSpots(parkingLotId);
+    }
+
+    @Override
+    public Double getTotalRevenueByParkingLotId(Long parkingLotId)throws RemoteException {
+        return reservationService.getTotalRevenueByParkingLotId(parkingLotId);
     }
 
 }

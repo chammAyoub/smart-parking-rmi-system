@@ -22,6 +22,14 @@ public class ReservationService {
     private final ParkingSpotRepository parkingSpotRepository;
     private final ReservationRepository reservationRepository;
 
+
+    @Transactional(readOnly = true)
+    public Double getTotalRevenueByParkingLotId(Long parkingLotId) {
+        Double revenue = reservationRepository.getTotalRevenueByParkingLotId(parkingLotId);
+        // Return 0.0 if there are no completed reservations yet (null safe)
+        return revenue != null ? revenue : 0.0;
+    }
+
     // ✅ Put @Transactional HERE. This is safe.
     @Transactional
     public ReservationDTO createReservation(ReservationDTO dto) {

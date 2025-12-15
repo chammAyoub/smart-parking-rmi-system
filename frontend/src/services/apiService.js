@@ -95,7 +95,7 @@ export const getParkingSpots = async (parkingId) => {
 
 /**
  * Créer une réservation (PUBLIC - Sans Token)
- * ✅ Hna kheddemna publicApi bach Token maymchich m3aha
+ * 
  */
 export const createReservation = async (reservationData) => {
   const response = await publicApi.post(ENDPOINTS.RESERVATIONS, reservationData);
@@ -104,7 +104,7 @@ export const createReservation = async (reservationData) => {
 
 /**
  * Récupérer les réservations d'un utilisateur (PRIVATE - Avec Token)
- * ✅ Hna kheddemna api l3adiya
+ *
  */
 export const getUserReservations = async (email) => {
   const response = await api.get(ENDPOINTS.USER_RESERVATIONS(email));
@@ -115,7 +115,7 @@ export const getUserReservations = async (email) => {
  * Annuler une réservation (PRIVATE - Avec Token)
  */
 export const cancelReservation = async (id) => {
-  await api.delete(ENDPOINTS.CANCEL_RESERVATION(id));
+  await api.post(ENDPOINTS.CANCEL_RESERVATION(id));
 };
 
 // Login (PUBLIC)

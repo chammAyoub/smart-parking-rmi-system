@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Car, Trash2, AlertCircle } from 'lucide-react';
 import { getUserReservations, cancelReservation } from '../services/apiService';
-import { useNavigate } from 'react-router-dom'; // ✅ Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from './LoadingSpinner';
 import Toast from './Toast';
 
@@ -11,25 +11,23 @@ const ReservationsPage = () => {
   const [toast, setToast] = useState(null);
   
   const navigate = useNavigate();
-
-  // ✅ 1. Njibo Email mn LocalStorage (Machi Hardcoded)
   const userEmail = localStorage.getItem('userEmail');
 
   useEffect(() => {
-    // ✅ 2. Vérification: Ila makanch email (user machi connecté), rj3o l login/home
     if (!userEmail) {
         setLoading(false);
-        return; // Matkemmlch fetch
+        return;
     }
     fetchReservations();
-  }, [userEmail]); // Refetch ila tbeddel user
+  }, [userEmail]);
 
   const fetchReservations = async () => {
     try {
       setLoading(true);
-      // ✅ 3. N-sifto l-email dynamique
       const data = await getUserReservations(userEmail);
-      setReservations(data);
+      // Tri par date décroissante (optionnel mais recommandé)
+      const sortedData = data.sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+      setReservations(sortedData);
     } catch (error) {
       console.error('Erreur historique:', error);
     } finally {
@@ -41,16 +39,16 @@ const ReservationsPage = () => {
     if (!window.confirm("Voulez-vous vraiment annuler cette réservation ?")) return;
     try {
       await cancelReservation(id);
-      setToast({ message: "Réservation annulée.", type: "success" });
+      setToast({ message: "Réservation annulée avec succès.", type: "success" });
       fetchReservations(); // Refresh list
     } catch (error) {
-      setToast({ message: "Erreur lors de l'annulation.", type: "error" });
+      console.error(error);
+      setToast({ message: "Impossible d'annuler cette réservation.", type: "error" });
     }
   };
 
   if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
 
-  // ✅ 4. Gestion cas Non Connecté
   if (!userEmail) {
       return (
         <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
@@ -81,27 +79,43 @@ const ReservationsPage = () => {
         ) : (
           <div className="grid gap-6">
             {reservations.map((res) => (
-              <div key={res.id} className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-primary">
+              <div key={res.id} className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-primary hover:shadow-xl transition duration-300">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-xl font-bold text-gray-800">{res.parkingName}</h3>
-                    <p className="text-gray-600">Place <span className="font-bold">{res.spotNumber}</span></p>
+                    <p className="text-gray-600">Place <span className="font-bold text-primary">{res.spotNumber}</span></p>
                   </div>
-                  <span className={`px-4 py-1 rounded-full text-sm font-semibold ${res.status === 'CONFIRMED' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+                  <span className={`px-4 py-1 rounded-full text-sm font-semibold 
+                    ${res.status === 'CONFIRMED' ? 'bg-green-100 text-green-800' : 
+                      res.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' : 
+                      res.status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'}`}>
                     {res.status}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <div className="flex items-center gap-2 text-gray-600"><Calendar className="w-5 h-5" /> <span>{new Date(res.startTime).toLocaleString()}</span></div>
-                  <div className="flex items-center gap-2 text-gray-600"><Clock className="w-5 h-5" /> <span>{res.durationHours}h ({res.totalAmount} DH)</span></div>
-                  <div className="flex items-center gap-2 text-gray-600"><Car className="w-5 h-5" /> <span>{res.licensePlate}</span></div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Calendar className="w-5 h-5 text-primary" /> 
+                    <span>{new Date(res.startTime).toLocaleString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Clock className="w-5 h-5 text-primary" /> 
+                    <span>{res.durationHours}h ({res.totalAmount} DH)</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Car className="w-5 h-5 text-primary" /> 
+                    <span>{res.licensePlate}</span>
+                  </div>
                 </div>
 
-                {res.status === 'CONFIRMED' && (
+                {/* ✅ CORRECTION: AFFICHER BOUTON SI CONFIRMED OU PENDING */}
+                {(res.status === 'CONFIRMED' || res.status === 'PENDING') && (
                   <div className="mt-4 pt-4 border-t flex justify-end">
-                    <button onClick={() => handleCancel(res.id)} className="bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg transition flex items-center gap-2">
-                      <Trash2 className="w-4 h-4" /> Annuler
+                    <button 
+                        onClick={() => handleCancel(res.id)} 
+                        className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-semibold py-2 px-4 rounded-lg transition flex items-center gap-2"
+                    >
+                      <Trash2 className="w-4 h-4" /> Annuler la réservation
                     </button>
                   </div>
                 )}

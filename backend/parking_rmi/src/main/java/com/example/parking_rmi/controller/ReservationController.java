@@ -15,7 +15,7 @@ import java.util.List;
 public class ReservationController {
 
     @Autowired
-    private ParkingServ clientService; // ✅ Sta3ml Wrapper li fih try-catch
+    private ParkingServ clientService;
 
     @Autowired
     private ParkingService parkingService;
@@ -55,7 +55,6 @@ public class ReservationController {
 
     @GetMapping("/user/{email}")
     public ResponseEntity<List<ReservationDTO>> getReservationByEmail(@PathVariable String email)throws Exception {
-        // ✅ DABA S7I7A: Kan3iyto l service
         List<ReservationDTO> reservations =parkingService.getReservationsByUserEmail(email);
         return ResponseEntity.ok(reservations);
     }

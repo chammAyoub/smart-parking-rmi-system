@@ -24,7 +24,7 @@ const ReservationModal = ({ isOpen, onClose, parking, spot, onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
 
-  // ✅ Vérification d'authentification à chaque ouverture du modal
+  // Vérification d'authentification à chaque ouverture du modal
   useEffect(() => {
     if (isOpen) {
       checkAuth();
@@ -37,15 +37,14 @@ const ReservationModal = ({ isOpen, onClose, parking, spot, onSuccess }) => {
     
     if (token) {
       setIsAuthenticated(true);
-      // Ila connecte, 3mmer les champs b data li kayna f localStorage (ila kayna)
-      const storedName = localStorage.getItem('userName'); // ola 'firstname' 3la 7sab LoginModal
-      // Note: LoginModal dyalek makaysajlch email f localStorage, walakin ila kan 3ndk "user" object:
-      // const userObj = JSON.parse(localStorage.getItem('user'));
+      
+      const storedName = localStorage.getItem('userName');
+      const storedEmail = localStorage.getItem('userEmail')
       
       setFormData(prev => ({
         ...prev,
         userName: storedName || '',
-        // userEmail: userObj?.email || '' 
+        userEmail: storedEmail || '',
       }));
     } else {
       setIsAuthenticated(false);
@@ -147,7 +146,6 @@ const ReservationModal = ({ isOpen, onClose, parking, spot, onSuccess }) => {
                 </button>
             </div>
           ) : (
-            // ✅ FORMULAIRE (Kayban ghir ila kan token)
             <form onSubmit={handleSubmit} className="p-6 space-y-4">
               {apiError && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
@@ -172,7 +170,14 @@ const ReservationModal = ({ isOpen, onClose, parking, spot, onSuccess }) => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2"><Mail className="w-4 h-4 inline mr-2" /> Email *</label>
-                <input type="email" name="userEmail" value={formData.userEmail} onChange={handleChange} placeholder="ahmed@example.com" className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary" required />
+                <input  type="email"
+                        name="userEmail"
+                        value={formData.userEmail}
+                        onChange={handleChange} 
+                        placeholder="ahmed@example.com" 
+                        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary ${formData.userEmail ? 'bg-gray-50' : ''}`}
+                        readOnly={!!localStorage.getItem('userEmail')}
+                        required />
               </div>
 
               <div>

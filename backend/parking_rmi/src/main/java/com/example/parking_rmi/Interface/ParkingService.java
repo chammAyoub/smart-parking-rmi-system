@@ -3,10 +3,10 @@ package com.example.parking_rmi.Interface;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
+
 import com.example.parking_rmi.dto.ParkingLotDTO;
 import com.example.parking_rmi.dto.ParkingSpotDTO;
 import com.example.parking_rmi.dto.ReservationDTO;
-import com.example.parking_rmi.model.ParkingSpot;
 import com.example.parking_rmi.model.ParkingSpot.SpotStatus;
 
 public interface ParkingService extends Remote {
@@ -47,13 +47,15 @@ public interface ParkingService extends Remote {
 
     public boolean simulateCarEntry(long spotId) throws RemoteException;
 
-    List<ParkingSpotDTO> findByStatus(SpotStatus status);
+    List<ParkingSpotDTO> findByStatus(SpotStatus status) throws RemoteException;
 
-    List<ParkingSpotDTO> findByParkingLotIdAndStatus(Long parkingLotId, SpotStatus status);
+    List<ParkingSpotDTO> findByParkingLotIdAndStatus(Long parkingLotId, SpotStatus status)
+        throws RemoteException;
 
-    Long countAvailableSpots(Long parkingLotId);
+    Long countAvailableSpots(Long parkingLotId) throws RemoteException;
 
-    Long countOccupiedSpots(Long parkingLotId);
+    Long countOccupiedSpots(Long parkingLotId) throws RemoteException;
 
-    Double getTotalRevenueByParkingLotId(Long parkingLotId);
+    Double getTotalRevenueByParkingLotId(Long parkingLotId) throws RemoteException;
+
 }

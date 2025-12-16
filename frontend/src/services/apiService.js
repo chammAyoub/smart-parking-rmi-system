@@ -150,6 +150,12 @@ export const simulateCarExit = async (id) => {
   return response.data;
 };
 
+// pariking stats 
+export const parkingStats = async (id) => {
+  const response = await api.get(ENDPOINTS.PARKING_STATS(id));
+  return response.data;
+};
+
 
 // Par défaut on export l'instance privée
 export default api;

@@ -4,7 +4,7 @@ import {
   getParkingSpots,
   getParkingById,
 } from "../../services/apiService";
-import { simulateCarEnter, simulateCarExit } from "../../services/apiService";
+import { simulateCarEnter, simulateCarExit, parkingStats } from "../../services/apiService";
 import { Car } from "lucide-react";
 import ParkingGridAdmin from "../components/ParkingGridAdmin";
 
@@ -12,6 +12,11 @@ const SimulationPanel = () => {
   const [parkings, setParkings] = useState([]);
   const [selectedParking, setSelectedParking] = useState(null);
   const [spots, setSpots] = useState([]);
+  const [stats, setStats] = useState({
+    availableSpots: 0,
+    occupiedSpots: 0,
+    occupancyRate: 0,
+  });
 
   useEffect(() => {
     getAllParkingLots().then(setParkings);
@@ -21,17 +26,21 @@ const SimulationPanel = () => {
     if (selectedParking) {
       const fetchSpots = async () => {
         const parkingData = await getParkingById(selectedParking);
-        
-        
+        const parkingStatsData = await parkingStats(selectedParking);
         setSpots(parkingData.spots);
-        
-        
-        
+        setStats(parkingStatsData)
       };
 
       fetchSpots();
     }
+    if(setSelectedParking == null) {
+      setStats({availableSpots: 0,
+      occupiedSpots: 0,
+      occupancyRate: 0,}) 
+    }
   }, [selectedParking]);
+
+
 
   const handleAction = async (spot, action) => {
     const spotId = spot.id;
@@ -46,20 +55,44 @@ const SimulationPanel = () => {
       
     } catch (err) {
       alert("Erreur simulation: " + err.message);
+    };
     }
-  };
 
   return (
     <div
       className="bg-white rounded-2xl shadow-lg p-6 border 
       border-gray-100"
     >
-      <h2
-        className="text-xl font-bold text-gray-800 mb-6 flex 
+      <div className="flex justify-between items-center mb-6">
+        <h2
+        className="text-xl font-bold text-gray-800 flex 
         items-center gap-2"
       >
         <Car className="text-primary" /> Simulateur IoT
       </h2>
+      <div className="flex gap-4">  
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-500">Occupation</p>
+          <p className="text-2xl font-bold text-primary">
+            {stats.occupancyRate.toFixed(2)}%
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-500">Libres</p>
+          <p className="text-2xl font-bold text-green-500">
+            {stats.availableSpots}
+          </p>
+        </div>
+        <div className="bg-white p-4 rounded-xl shadow-sm">
+          <p className="text-xs text-gray-500">Ocupied</p>
+          <p className="text-2xl font-bold text-green-500">
+            {stats.occupiedSpots}
+          </p>
+        </div>
+      </div>
+      
+      </div>
+      
 
       <div className="mb-8">
         <label className="block text-sm font-medium text-gray-700 mb-2">

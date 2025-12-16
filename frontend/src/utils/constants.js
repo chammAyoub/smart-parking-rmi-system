@@ -60,4 +60,5 @@ export const ENDPOINTS = {
   ADD_PARKING: "/admin/addParking",
   ENTER_SIMULATION : (id) => `/admin/simulate/enter/${id}`,
   EXIT_SIMULATION : (id) => `/admin/simulate/exit/${id}`,
+  PARKING_STATS : (id) => `/admin/stats/parking/${id}`,
 };

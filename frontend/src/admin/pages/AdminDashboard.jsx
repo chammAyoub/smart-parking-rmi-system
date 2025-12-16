@@ -251,11 +251,11 @@ const AdminDashboard = () => {
     occupancyRate: 0,
   });
 
-  useEffect(() => {
-    const fetchStats = () =>
-      getAdminStats().then(setStats).catch(console.error);
-    fetchStats();
-  }, []);
+  // useEffect(() => {
+  //   const fetchStats = () =>
+  //     getAdminStats().then(setStats).catch(console.error);
+  //   fetchStats();
+  // }, []);
 
   const handleParkingCreated = () => {
     getAdminStats().then(setStats).catch(console.error);
@@ -310,7 +310,7 @@ const AdminDashboard = () => {
             >
               <Plus size={20} /> Add Parking
             </button>
-            <div className="bg-white p-4 rounded-xl shadow-sm">
+            {/* <div className="bg-white p-4 rounded-xl shadow-sm">
               <p className="text-xs text-gray-500">Occupation</p>
               <p className="text-2xl font-bold text-primary">
                 {stats.occupancyRate}%
@@ -321,7 +321,7 @@ const AdminDashboard = () => {
               <p className="text-2xl font-bold text-green-500">
                 {stats.totalSpots - stats.occupiedSpots}
               </p>
-            </div>
+            </div> */}
           </div>
         </header>
 

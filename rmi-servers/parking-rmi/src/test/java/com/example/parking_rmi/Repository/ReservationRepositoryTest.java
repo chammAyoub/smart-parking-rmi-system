@@ -1,6 +1,5 @@
 package com.example.parking_rmi.Repository;
 
-
 import com.example.parking_rmi.model.Reservation;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +21,14 @@ public class ReservationRepositoryTest {
     // On mock les autres repository pour ne pas avoir d'erreurs de dépendances
     @MockBean
     private ParkingLotRepository parkingLotRepository;
-
     @MockBean
     private ParkingSpotRepository parkingSpotRepository;
 
     @Test
     public void testFindReservationByEmail() {
-        // Scénario : On cherche si la méthode renvoie quelque chose (même vide)
+        // Scénario : On cherche si la méthode renvoie quelque chose (même vide pour le test)
         String email = "test.fatima@gmail.com";
-
+        
         // Action
         List<Reservation> result = reservationRepository.findByUserEmail(email);
 
@@ -41,8 +39,8 @@ public class ReservationRepositoryTest {
     @Test
     public void testFindActiveReservations() {
         // Action
-        List<Reservation> active = reservationRepository.findActiveReservationsByUserEmail("test@example.com");
-
+        List<Reservation> active = reservationRepository.findActiveReservationsByUserEmail("test@gmail.com");
+        
         // Vérification
         assertThat(active).isNotNull();
     }
